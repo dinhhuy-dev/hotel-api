@@ -22,12 +22,12 @@ env:
 jobs:
   quality-check:
     name: Lint, Test and Build
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -56,13 +56,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
 
       - name: Build Docker image
         run: |
           docker build \
             --tag nestjs-app:${{ github.sha }} \
             .
-
-      - name: Inspect Docker image
-        run: docker image inspect nestjs-app:${{ github.sha }}
