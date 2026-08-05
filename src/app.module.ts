@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigurationModule } from './configs/configuration.module';
 import { LoggerModule } from 'nestjs-pino';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { LoggerModule } from 'nestjs-pino';
         },
       },
     }),
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

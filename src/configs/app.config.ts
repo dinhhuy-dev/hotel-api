@@ -10,5 +10,5 @@ export default registerAs('app', () => ({
 
   port: toNumber(process.env.PORT) || 3000,
 
-  logLevl: process.env.LOG_LEVEL ?? 'info',
+  logLevel: process.env.LOG_LEVEL ?? 'info',
 }));

@@ -1,5 +1,6 @@
 import Joi from 'joi';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const booleanValue = Joi.boolean().truthy('true').falsy('false');
 
 const port = Joi.number().integer().min(1).max(65535);
@@ -46,8 +47,4 @@ export const envValidationSchema = Joi.object({
   DB_USER: Joi.string().trim().min(1).required(),
 
   DB_PASSWORD: Joi.string().trim().min(1).required(),
-
-  TYPEORM_AUTOLOADENTITIES: booleanValue.optional(),
-
-  TYPEORM_SYNCHRONIZE: booleanValue.optional(),
 });

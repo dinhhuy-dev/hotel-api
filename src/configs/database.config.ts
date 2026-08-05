@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { toBoolean, toNumber } from './config.parsers';
+import { toNumber } from './config.parsers';
 
 export default registerAs('database', () => ({
   host: process.env.DB_HOST,
@@ -11,8 +11,4 @@ export default registerAs('database', () => ({
   username: process.env.DB_USER,
 
   password: process.env.DB_PASSWORD,
-
-  autoLoadEntities: toBoolean(process.env.TYPEORM_AUTOLOADENTITIES) || true,
-
-  synchronize: toBoolean(process.env.TYPEORM_SYNCHRONIZE) || false,
 }));
