@@ -1,12 +1,46 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigurationModule } from './configs/configuration.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
+    ConfigurationModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'debug',
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? {
+                target: 'pino-pretty',
+                options: {
+                  singleLine: true,
+                  colorize: true,
+                },
+              }
+            : undefined,
+        redact: {
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'res.headers["set-cookie"]',
+          ],
+          remove: true,
+        },
+
+        customLogLevel(_req, res, err) {
+          if (err || res.statusCode >= 500) {
+            return 'error';
+          }
+
+          if (res.statusCode >= 400) {
+            return 'warn';
+          }
+
+          return 'info';
+        },
+      },
     }),
   ],
   controllers: [AppController],
