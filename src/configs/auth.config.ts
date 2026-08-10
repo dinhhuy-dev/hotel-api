@@ -21,4 +21,8 @@ export default registerAs('auth', () => ({
 
     sameSite: process.env.REFRESH_COOKIE_SAME_SITE ?? 'lax',
   },
+
+  emailVerification: {
+    ttlMinutes: toNumber(process.env.EMAIL_VERIFICATION_TTL_MINUTES) || 30,
+  },
 }));

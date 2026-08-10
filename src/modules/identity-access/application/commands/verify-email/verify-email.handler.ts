@@ -87,7 +87,7 @@ export class VerifyEmailHandler {
       account.role,
     );
 
-    const refreshToken = await this.opaqueTokenGenerator.generateRefreshToken();
+    const refreshToken = this.opaqueTokenGenerator.generateRefreshToken();
     const refreshTokenHash = this.opaqueTokenHasher.hash(refreshToken.token);
 
     account.storeRefreshToken(refreshTokenHash, refreshToken.expiresAt, now);

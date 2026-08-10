@@ -1,12 +1,12 @@
 services:
-  learnprj:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: learnprj-container
-    env_file: .env
-    ports: 
-      - "3001:$PORT"
+  # learnprj:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: learnprj-container
+  #   env_file: .env
+  #   ports: 
+  #     - "3001:$PORT"
 
   postgres:
     image: postgres:18-alpine

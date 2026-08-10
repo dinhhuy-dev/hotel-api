@@ -62,8 +62,7 @@ export class RefreshTokenHandler {
       account.role,
     );
 
-    const newRefreshToken =
-      await this.opaqueTokenGenerator.generateRefreshToken();
+    const newRefreshToken = this.opaqueTokenGenerator.generateRefreshToken();
 
     const newRefreshTokenHash = this.opaqueTokenHasher.hash(
       newRefreshToken.token,

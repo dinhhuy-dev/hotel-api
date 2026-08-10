@@ -4,6 +4,7 @@ import appConfig from './app.config';
 import authConfig from './auth.config';
 import databaseConfig from './database.config';
 import { envValidationSchema } from './env.validation';
+import emailConfig from './email.config';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { envValidationSchema } from './env.validation';
 
       skipProcessEnv: true,
 
-      load: [appConfig, authConfig, databaseConfig],
+      load: [appConfig, authConfig, databaseConfig, emailConfig],
 
       validationSchema: envValidationSchema,
     }),

@@ -66,7 +66,7 @@ export class SignInHandler {
       account.role,
     );
 
-    const refreshToken = await this.opaqueTokenGenerator.generateRefreshToken();
+    const refreshToken = this.opaqueTokenGenerator.generateRefreshToken();
 
     const refreshTokenHash = this.opaqueTokenHasher.hash(refreshToken.token);
 

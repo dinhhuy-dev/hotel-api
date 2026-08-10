@@ -79,7 +79,7 @@ export class SignUpHandler {
     });
 
     const verificationToken =
-      await this.opaqueTokenGenerator.generateEmailVerificationToken();
+      this.opaqueTokenGenerator.generateEmailVerificationToken();
 
     const verificationTokenHash = this.opaqueTokenHasher.hash(
       verificationToken.token,

@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigurationModule } from './configs/configuration.module';
 import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './database/database.module';
+import { IdentityAccessModule } from './modules/identity-access/identity-access.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { DatabaseModule } from './database/database.module';
       },
     }),
     DatabaseModule,
+    IdentityAccessModule,
   ],
   controllers: [AppController],
   providers: [AppService],

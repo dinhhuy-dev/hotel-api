@@ -4,6 +4,6 @@ export interface GeneratedOpaqueToken {
 }
 
 export interface OpaqueTokenGeneratorPort {
-  generateRefreshToken(): Promise<GeneratedOpaqueToken>;
-  generateEmailVerificationToken(): Promise<GeneratedOpaqueToken>;
+  generateRefreshToken(): GeneratedOpaqueToken;
+  generateEmailVerificationToken(): GeneratedOpaqueToken;
 }
