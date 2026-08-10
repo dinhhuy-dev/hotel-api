@@ -1,0 +1,5 @@
+export enum AccountStatus {
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
+  ACTIVE = 'ACTIVE',
+  DISABLED = 'DISABLED',
+}
