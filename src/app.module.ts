@@ -5,6 +5,7 @@ import { ConfigurationModule } from './configs/configuration.module';
 import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './database/database.module';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module';
+import { randomUUID } from 'node:crypto';
 
 @Module({
   imports: [
@@ -41,6 +42,17 @@ import { IdentityAccessModule } from './modules/identity-access/identity-access.
           }
 
           return 'info';
+        },
+
+        genReqId: (req, res) => {
+          const incomingId = req.headers['x-request-id'];
+
+          const requestId =
+            typeof incomingId === 'string' && incomingId.length <= 100
+              ? incomingId
+              : randomUUID();
+          res.setHeader('x-request-id', requestId);
+          return requestId;
         },
       },
     }),

@@ -3,9 +3,11 @@ import { AppModule } from './app.module';
 import { ConfigType } from '@nestjs/config';
 import appConfig from './configs/app.config';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { Logger } from 'nestjs-pino';
+import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -19,12 +21,17 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggerErrorInterceptor());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   const logger = app.get(Logger);
 
   app.useLogger(logger);
 
   const config = app.get<ConfigType<typeof appConfig>>(appConfig.KEY);
+
+  app.setGlobalPrefix('api');
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Hotel API')
@@ -34,8 +41,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
-
-  app.setGlobalPrefix('api');
 
   await app.listen(config.port, config.host);
 

@@ -1,4 +1,26 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import {
+  ApiSuccessResponse,
+  ApiSuccessVoidResponse,
+} from '../../../../common/decorators/api-success-response.decorator';
+import { ErrorResponseDto } from '../../../../common/presentation/http/dto/error-response.dto';
 import { SignUpHandler } from '../../application/commands/sign-up/sign-up.handler';
 import { SignInHandler } from '../../application/commands/sign-in/sign-in.handler';
 import { VerifyEmailHandler } from '../../application/commands/verify-email/verify-email.handler';
@@ -9,7 +31,7 @@ import { SignUpResponseDto } from './dto/sign-up.response.dto';
 import { VerifyEmailRequestDto } from './dto/verify-email.request.dto';
 import { VerifyEmailResponseDto } from './dto/verify-email.response.dto';
 import { VerifyEmailCommand } from '../../application/commands/verify-email/verify-email.command';
-import { SingInRequestDto } from './dto/sign-in.request.dto';
+import { SignInRequestDto } from './dto/sign-in.request.dto';
 import { AuthenticationResponseDto } from './dto/authentication.response.dto';
 import { SignInCommand } from '../../application/commands/sign-in/sign-in.command';
 import { RefreshTokenRequestDto } from './dto/refresh-token.request.dto';
@@ -31,6 +53,7 @@ import { LogoutRequestDto } from './dto/logout.request.dto';
 import { LogoutHandler } from '../../application/commands/logout/logout.handler';
 import { LogoutCommand } from '../../application/commands/logout/logout.command';
 
+@ApiTags('Authentication')
 @Controller('v1/auth')
 export class AuthenticationController {
   constructor(
@@ -45,6 +68,22 @@ export class AuthenticationController {
   ) {}
 
   @Post('sign-up')
+  @ApiOperation({
+    summary: 'Create an account',
+    description: 'Create a new account and send an email verification link.',
+  })
+  @ApiSuccessResponse(SignUpResponseDto, {
+    status: HttpStatus.CREATED,
+    description: 'Account created successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Request body is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'Account could not be created.',
+  })
   async signUp(@Body() dto: SignUpRequestDto): Promise<SignUpResponseDto> {
     const result = await this.signUpHandler.execute(
       new SignUpCommand(dto.email, dto.password),
@@ -57,6 +96,22 @@ export class AuthenticationController {
   }
 
   @Get('verify-email')
+  @ApiOperation({
+    summary: "Verify user's account email address",
+    description: 'Verify an account email address using a one-time token.',
+  })
+  @ApiSuccessResponse(VerifyEmailResponseDto, {
+    status: HttpStatus.OK,
+    description: 'Email address verified successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Verification query is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'Email address could not be verified.',
+  })
   async verifyEmail(
     @Query() dto: VerifyEmailRequestDto,
   ): Promise<VerifyEmailResponseDto> {
@@ -80,8 +135,24 @@ export class AuthenticationController {
   }
 
   @Post('sign-in')
+  @ApiOperation({
+    summary: 'Sign in to an account',
+    description: 'Authenticate an account and issue access and refresh tokens.',
+  })
+  @ApiSuccessResponse(AuthenticationResponseDto, {
+    status: HttpStatus.CREATED,
+    description: 'Authentication tokens issued successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Request body is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'Account could not be authenticated.',
+  })
   async signIn(
-    @Body() dto: SingInRequestDto,
+    @Body() dto: SignInRequestDto,
   ): Promise<AuthenticationResponseDto> {
     const result = await this.signInHandler.execute(
       new SignInCommand(dto.email, dto.password),
@@ -94,6 +165,22 @@ export class AuthenticationController {
   }
 
   @Post('refresh')
+  @ApiOperation({
+    summary: 'Refresh authentication tokens',
+    description: 'Rotate the refresh token and issue a new token pair.',
+  })
+  @ApiSuccessResponse(AuthenticationResponseDto, {
+    status: HttpStatus.CREATED,
+    description: 'Authentication tokens refreshed successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Request body is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'Refresh token could not be processed.',
+  })
   async refresh(
     @Body() dto: RefreshTokenRequestDto,
   ): Promise<AuthenticationResponseDto> {
@@ -108,6 +195,24 @@ export class AuthenticationController {
   }
 
   @Post('forgot-password')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({
+    summary: 'Request a password reset',
+    description:
+      'Request a password reset email without disclosing account existence.',
+  })
+  @ApiSuccessResponse(ForgotPasswordResponseDto, {
+    status: HttpStatus.ACCEPTED,
+    description: 'The password reset request was accepted.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'The request body is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'The password reset request could not be processed.',
+  })
   async forgotPassword(
     @Body() dto: ForgotPasswordRequestDto,
   ): Promise<ForgotPasswordResponseDto> {
@@ -122,6 +227,23 @@ export class AuthenticationController {
   }
 
   @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Reset an account password',
+    description: 'Set a new password using a one-time password reset token.',
+  })
+  @ApiSuccessVoidResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'The request body is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'The password could not be reset.',
+  })
   async resetPassword(@Body() dto: ResetPasswordRequestDto): Promise<void> {
     await this.resetPasswordHandler.execute(
       new ResetPasswordCommand(dto.token, dto.newPassword),
@@ -129,7 +251,30 @@ export class AuthenticationController {
   }
 
   @Post('change-password')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Change the current account password',
+    description:
+      'Change the password of the account represented by the access token.',
+  })
+  @ApiSuccessVoidResponse({
+    status: HttpStatus.OK,
+    description: 'Password changed successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Request body is invalid.',
+  })
+  @ApiUnauthorizedResponse({
+    type: ErrorResponseDto,
+    description: 'Access token is missing or invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'Password could not be changed.',
+  })
   async changePassword(
     @CurrentUser() currentUser: AuthenticatedUser,
     @Body() dto: ChangePasswordRequestDto,
@@ -144,6 +289,23 @@ export class AuthenticationController {
   }
 
   @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Log out from the current refresh token',
+    description: 'Revoke the refresh token supplied in the request body.',
+  })
+  @ApiSuccessVoidResponse({
+    status: HttpStatus.OK,
+    description: 'Refresh token revoked successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Request body is invalid.',
+  })
+  @ApiInternalServerErrorResponse({
+    type: ErrorResponseDto,
+    description: 'Refresh token could not be revoked.',
+  })
   async logout(@Body() dto: LogoutRequestDto): Promise<void> {
     await this.logoutHandler.execute(new LogoutCommand(dto.token));
   }
