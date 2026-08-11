@@ -38,6 +38,9 @@ import {
 } from './application/ports/outbound/identity-access.token';
 import { JwtStrategy } from './presentation/http/strategies/jwt.strategy';
 import { LogoutHandler } from './application/commands/logout/logout.handler';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './presentation/http/security/jwt-auth.guard';
+import { RolesGuard } from './presentation/http/security/roles.guard';
 
 @Module({
   imports: [
@@ -58,6 +61,15 @@ import { LogoutHandler } from './application/commands/logout/logout.handler';
   controllers: [AuthenticationController],
 
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+
     JwtStrategy,
 
     SignUpHandler,

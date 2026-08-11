@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -48,10 +47,12 @@ import { CurrentUser } from './security/current-user.decorator';
 import type { AuthenticatedUser } from './security/authenticated-user';
 import { ChangePasswordRequestDto } from './dto/change-password.request.dto';
 import { ChangePasswordCommand } from '../../application/commands/change-password/change-password.command';
-import { AuthGuard } from '@nestjs/passport';
 import { LogoutRequestDto } from './dto/logout.request.dto';
 import { LogoutHandler } from '../../application/commands/logout/logout.handler';
 import { LogoutCommand } from '../../application/commands/logout/logout.command';
+import { Public } from 'src/common/decorators/public.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { AccountRole } from '../../domain/enums/account-role';
 
 @ApiTags('Authentication')
 @Controller('v1/auth')
@@ -67,6 +68,7 @@ export class AuthenticationController {
     private readonly logoutHandler: LogoutHandler,
   ) {}
 
+  @Public()
   @Post('sign-up')
   @ApiOperation({
     summary: 'Create an account',
@@ -95,6 +97,7 @@ export class AuthenticationController {
     };
   }
 
+  @Public()
   @Get('verify-email')
   @ApiOperation({
     summary: "Verify user's account email address",
@@ -134,6 +137,7 @@ export class AuthenticationController {
     };
   }
 
+  @Public()
   @Post('sign-in')
   @ApiOperation({
     summary: 'Sign in to an account',
@@ -164,6 +168,7 @@ export class AuthenticationController {
     };
   }
 
+  @Public()
   @Post('refresh')
   @ApiOperation({
     summary: 'Refresh authentication tokens',
@@ -194,6 +199,7 @@ export class AuthenticationController {
     };
   }
 
+  @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({
@@ -226,6 +232,7 @@ export class AuthenticationController {
     };
   }
 
+  @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -251,8 +258,8 @@ export class AuthenticationController {
   }
 
   @Post('change-password')
+  @Roles(AccountRole.ADMINISTRATOR)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Change the current account password',
@@ -288,6 +295,7 @@ export class AuthenticationController {
     );
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
