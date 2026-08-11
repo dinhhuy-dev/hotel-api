@@ -1,0 +1,24 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import appConfig from './app.config';
+import authConfig from './auth.config';
+import databaseConfig from './database.config';
+import { envValidationSchema } from './env.validation';
+import emailConfig from './email.config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+
+      cache: true,
+
+      skipProcessEnv: true,
+
+      load: [appConfig, authConfig, databaseConfig, emailConfig],
+
+      validationSchema: envValidationSchema,
+    }),
+  ],
+})
+export class ConfigurationModule {}
