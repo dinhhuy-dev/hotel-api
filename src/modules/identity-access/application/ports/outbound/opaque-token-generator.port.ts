@@ -6,4 +6,5 @@ export interface GeneratedOpaqueToken {
 export interface OpaqueTokenGeneratorPort {
   generateRefreshToken(): GeneratedOpaqueToken;
   generateEmailVerificationToken(): GeneratedOpaqueToken;
+  generatePasswordResetToken(): GeneratedOpaqueToken;
 }

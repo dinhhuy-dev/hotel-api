@@ -4,6 +4,12 @@ export interface VerificationEmailInput {
   token: string;
 }
 
+export interface PasswordResetEmailInput {
+  email: string;
+  accountId: string;
+  token: string;
+}
+
 export interface EmailDeliveryResult {
   delivered: boolean;
 }
@@ -11,5 +17,9 @@ export interface EmailDeliveryResult {
 export interface EmailServicePort {
   sendVerificationEmail(
     input: VerificationEmailInput,
+  ): Promise<EmailDeliveryResult>;
+
+  sendPasswordResetEmail(
+    input: PasswordResetEmailInput,
   ): Promise<EmailDeliveryResult>;
 }

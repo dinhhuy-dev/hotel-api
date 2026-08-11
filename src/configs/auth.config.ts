@@ -25,4 +25,8 @@ export default registerAs('auth', () => ({
   emailVerification: {
     ttlMinutes: toNumber(process.env.EMAIL_VERIFICATION_TTL_MINUTES) || 30,
   },
+
+  passwordReset: {
+    ttlMinutes: toNumber(process.env.PASSWORD_RESET_TTL_MINUTES) || 10,
+  },
 }));

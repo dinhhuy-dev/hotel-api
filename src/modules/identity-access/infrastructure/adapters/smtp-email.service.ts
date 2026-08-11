@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   EmailDeliveryResult,
   EmailServicePort,
+  PasswordResetEmailInput,
   VerificationEmailInput,
 } from '../../application/ports/outbound/email-service.port';
 import { createTransport, Transporter } from 'nodemailer';
@@ -90,6 +91,40 @@ export class SmtpEmailService implements EmailServicePort {
       } else {
         this.logger.error(
           `Verification email delivery failed for account ${input.accountId}: ${String(error)}`,
+        );
+      }
+
+      return { delivered: false };
+    }
+  }
+
+  async sendPasswordResetEmail(
+    input: PasswordResetEmailInput,
+  ): Promise<EmailDeliveryResult> {
+    try {
+      await this.transporter.sendMail({
+        from: this.configuration.from,
+        to: input.email,
+        subject: 'Password reset token from Hotel Platform',
+        text: [
+          'Use the following token to reset your hotel account password:',
+          input.token,
+          'This token expires after 10 minutes and can be used only once.',
+        ].join('\n\n'),
+      });
+
+      return {
+        delivered: true,
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error(
+          `Password reset email delivery failed for account ${input.accountId}: ${error.message}`,
+          error.stack,
+        );
+      } else {
+        this.logger.error(
+          `Password reset email delivery failed for account ${input.accountId}: ${String(error)}`,
         );
       }
 

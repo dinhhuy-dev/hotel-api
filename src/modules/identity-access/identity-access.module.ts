@@ -10,6 +10,9 @@ import { SignUpHandler } from './application/commands/sign-up/sign-up.handler';
 import { SignInHandler } from './application/commands/sign-in/sign-in.handler';
 import { RefreshTokenHandler } from './application/commands/refresh-token/refresh-token.handler';
 import { VerifyEmailHandler } from './application/commands/verify-email/verify-email.handler';
+import { ForgotPasswordHandler } from './application/commands/forgot-password/forgot-password.handler';
+import { ResetPasswordHandler } from './application/commands/reset-password/reset-password.handler';
+import { ChangePasswordHandler } from './application/commands/change-password/change-password.handler';
 import { TypeOrmTransactionContext } from './infrastructure/adapters/typeorm-transaction-context';
 import { TypeOrmTransactionRunner } from './infrastructure/adapters/typeorm-transaction-runner';
 import { TypeOrmAccountRepository } from './infrastructure/typeorm/repositories/typeorm-account.repository';
@@ -33,6 +36,8 @@ import {
   PASSWORD_HASHER,
   TRANSACTION_RUNNER,
 } from './application/ports/outbound/identity-access.token';
+import { JwtStrategy } from './presentation/http/strategies/jwt.strategy';
+import { LogoutHandler } from './application/commands/logout/logout.handler';
 
 @Module({
   imports: [
@@ -53,10 +58,16 @@ import {
   controllers: [AuthenticationController],
 
   providers: [
+    JwtStrategy,
+
     SignUpHandler,
     SignInHandler,
     RefreshTokenHandler,
     VerifyEmailHandler,
+    ForgotPasswordHandler,
+    ResetPasswordHandler,
+    ChangePasswordHandler,
+    LogoutHandler,
 
     TypeOrmTransactionContext,
     TypeOrmTransactionRunner,

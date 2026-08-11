@@ -30,6 +30,10 @@ export class RandomOpaqueTokenGenerator implements OpaqueTokenGeneratorPort {
     );
   }
 
+  generatePasswordResetToken(): GeneratedOpaqueToken {
+    return this.generateToken(this.configuration.passwordReset.ttlMinutes * 60);
+  }
+
   private generateToken(ttlSeconds: number): GeneratedOpaqueToken {
     const now = this.clock.now();
 

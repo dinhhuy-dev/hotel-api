@@ -20,6 +20,14 @@ export interface CreateEmailVerificationTokenParams {
   now: Date;
 }
 
+export interface CreatePasswordResetTokenParams {
+  id: string;
+  accountId: string;
+  tokenHash: string;
+  expiresAt: Date;
+  now: Date;
+}
+
 export class AccountToken {
   private constructor(private readonly props: AccountTokenProps) {
     this.props.expiresAt = cloneDate(props.expiresAt) as Date;
@@ -46,6 +54,32 @@ export class AccountToken {
       id,
       accountId,
       type: AccountTokenType.EMAIL_VERIFICATION,
+      tokenHash,
+      expiresAt,
+      createdAt: now,
+      usedAt: null,
+    });
+  }
+
+  static createPasswordResetToken(
+    params: CreatePasswordResetTokenParams,
+  ): AccountToken {
+    const id = requireNonEmpty(params.id, 'Token ID');
+    const accountId = requireNonEmpty(params.accountId, 'Account ID');
+    const tokenHash = requireNonEmpty(params.tokenHash, 'Token hash');
+    const expiresAt = requireValidDate(params.expiresAt, 'Token expiration');
+    const now = requireValidDate(params.now, 'Creation Time');
+
+    if (expiresAt.getTime() <= now.getTime()) {
+      throw new InvalidAccountStateError(
+        'Token expiration must be in the future',
+      );
+    }
+
+    return new AccountToken({
+      id,
+      accountId,
+      type: AccountTokenType.PASSWORD_RESET,
       tokenHash,
       expiresAt,
       createdAt: now,

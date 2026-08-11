@@ -32,6 +32,8 @@ export const envValidationSchema = Joi.object({
 
   JWT_REFRESH_TTL_HOURS: positiveInteger.max(168).optional(),
 
+  PASSWORD_RESET_TTL_MINUTES: positiveInteger.max(60).optional(),
+
   REFRESH_COOKIE_NAME: Joi.string().trim().min(1).optional(),
 
   REFRESH_COOKIE_SAME_SITE: Joi.string()
