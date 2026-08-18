@@ -25,7 +25,7 @@
     "migration:create": "npm run typeorm -- migration:create ./src/database/migrations/$npm_config_name",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.28",
