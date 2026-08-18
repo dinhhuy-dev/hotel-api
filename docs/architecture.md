@@ -52,7 +52,7 @@ The application has two internal architecture styles:
 | ------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------- |
 | `identity-access`        | Authentication, accounts, account roles, and credentials          | Accounts, roles, password hashes, and account tokens    |
 | `customer`               | Customer profiles and personal information                        | Contact and identification details                      |
-| `room-catalog`           | Room types, physical rooms, facilities, floors, and room status   | Room types and rooms                                    |
+| `room-catalog`           | Room types, physical rooms, facilities, floors, and room status   | Room types, facilities, rooms, and operational status   |
 | `pricing`                | Prices for each room type and date range                          | Room-type prices                                        |
 | `inventory-availability` | Availability checks and sellable room inventory                   | Availability records and inventory blocks               |
 | `reservation`            | Reservation creation, confirmation, updates, and cancellation     | Reservations and reservation status                     |
@@ -214,6 +214,8 @@ The application uses one PostgreSQL database and TypeORM. Sharing a database doe
 
 ## 8. API and Cross-Cutting Concerns
 
+See [`http-conventions.md`](http-conventions.md) for source-backed routing, response envelope, pagination, Swagger, and exception-filter behavior.
+
 ### Request Flow
 
 The common HTTP flow is:
@@ -243,7 +245,9 @@ Paginated responses add pagination information to `meta`. Controllers return bus
 
 ### Errors
 
-Domain and service errors remain independent from HTTP. The presentation layer maps known errors to stable HTTP status codes and error codes. Unknown errors return a generic internal error without stack traces, SQL details, or provider responses.
+The `identity-access` domain and application errors remain independent from HTTP. Its presentation layer maps known errors to stable HTTP status codes and error codes.
+
+Standard NestJS business module services may throw NestJS HTTP exception subclasses directly. Their exception payloads use stable, machine-readable error codes and safe client messages. Unknown errors return a generic internal error without stack traces, SQL details, internal class names, or provider responses.
 
 ### Validation and API Documentation
 
@@ -281,13 +285,13 @@ Tests cover successful behavior, authorization failures, invalid state changes, 
 
 ## 11. Key Architecture Rules
 
-| Area                    | Rule                                                                               |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| Hotel scope             | Model the single hotel managed by the system.                                      |
-| `identity-access`       | Keep Clean Architecture dependencies directed toward the domain.                   |
-| Other modules           | Use the standard NestJS layered structure.                                         |
-| Module access           | Communicate through public contracts and in-process events.                        |
-| Persistence             | Keep TypeORM entities and migrations under their owning modules.                   |
-| Reservation consistency | Recheck availability in the reservation write transaction.                         |
-| Authorization           | Derive account-role RBAC and ownership information from the authenticated context. |
-| API output              | Return response DTOs through the `{ data, meta }` envelope.                        |
+| Area                    | Rule                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Hotel scope             | Model the single hotel managed by the system.                                                                 |
+| `identity-access`       | Keep Clean Architecture dependencies directed toward the domain.                                              |
+| Other modules           | Use the standard NestJS layered structure.                                                                    |
+| Module access           | Communicate through public contracts and in-process events.                                                   |
+| Persistence             | Keep TypeORM entities module-owned. Store migrations centrally and scope each migration to its owning module. |
+| Reservation consistency | Recheck availability in the reservation write transaction.                                                    |
+| Authorization           | Derive account-role RBAC and ownership information from the authenticated context.                            |
+| API output              | Return response DTOs through the `{ data, meta }` envelope.                                                   |
