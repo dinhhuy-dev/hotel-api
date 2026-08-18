@@ -20,14 +20,10 @@ export class RandomOpaqueTokenGenerator implements OpaqueTokenGeneratorPort {
   ) {}
 
   generateRefreshToken(): GeneratedOpaqueToken {
-    return this.generateToken(
-      this.configuration.refreshToken.ttlHours * 60 * 60,
-    );
+    return this.generateToken(this.configuration.refreshToken.ttlHours * 60 * 60);
   }
   generateEmailVerificationToken(): GeneratedOpaqueToken {
-    return this.generateToken(
-      this.configuration.emailVerification.ttlMinutes * 60,
-    );
+    return this.generateToken(this.configuration.emailVerification.ttlMinutes * 60);
   }
 
   generatePasswordResetToken(): GeneratedOpaqueToken {

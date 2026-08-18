@@ -65,8 +65,7 @@ export class ForgotPasswordHandler {
     }
 
     const now = this.clock.now();
-    const generatedToken =
-      this.opaqueTokenGenerator.generatePasswordResetToken();
+    const generatedToken = this.opaqueTokenGenerator.generatePasswordResetToken();
     const accountToken = AccountToken.createPasswordResetToken({
       id: this.idGenerator.generate(),
       accountId: account.id,

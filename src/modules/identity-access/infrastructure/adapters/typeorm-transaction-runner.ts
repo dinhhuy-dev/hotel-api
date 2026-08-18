@@ -17,8 +17,6 @@ export class TypeOrmTransactionRunner implements TransactionRunnerPort {
       return work();
     }
 
-    return this.dataSource.transaction((manager) =>
-      this.context.run(manager, work),
-    );
+    return this.dataSource.transaction((manager) => this.context.run(manager, work));
   }
 }

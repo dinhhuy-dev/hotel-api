@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -87,9 +79,7 @@ export class AuthenticationController {
     description: 'Account could not be created.',
   })
   async signUp(@Body() dto: SignUpRequestDto): Promise<SignUpResponseDto> {
-    const result = await this.signUpHandler.execute(
-      new SignUpCommand(dto.email, dto.password),
-    );
+    const result = await this.signUpHandler.execute(new SignUpCommand(dto.email, dto.password));
 
     return {
       accountId: result.accountId,
@@ -115,12 +105,8 @@ export class AuthenticationController {
     type: ErrorResponseDto,
     description: 'Email address could not be verified.',
   })
-  async verifyEmail(
-    @Query() dto: VerifyEmailRequestDto,
-  ): Promise<VerifyEmailResponseDto> {
-    const result = await this.verifyEmailHandler.execute(
-      new VerifyEmailCommand(dto.token),
-    );
+  async verifyEmail(@Query() dto: VerifyEmailRequestDto): Promise<VerifyEmailResponseDto> {
+    const result = await this.verifyEmailHandler.execute(new VerifyEmailCommand(dto.token));
 
     if (result.authentication === null) {
       return {
@@ -155,12 +141,8 @@ export class AuthenticationController {
     type: ErrorResponseDto,
     description: 'Account could not be authenticated.',
   })
-  async signIn(
-    @Body() dto: SignInRequestDto,
-  ): Promise<AuthenticationResponseDto> {
-    const result = await this.signInHandler.execute(
-      new SignInCommand(dto.email, dto.password),
-    );
+  async signIn(@Body() dto: SignInRequestDto): Promise<AuthenticationResponseDto> {
+    const result = await this.signInHandler.execute(new SignInCommand(dto.email, dto.password));
 
     return {
       accessToken: result.accessToken,
@@ -186,12 +168,8 @@ export class AuthenticationController {
     type: ErrorResponseDto,
     description: 'Refresh token could not be processed.',
   })
-  async refresh(
-    @Body() dto: RefreshTokenRequestDto,
-  ): Promise<AuthenticationResponseDto> {
-    const result = await this.refreshTokenHandler.execute(
-      new RefreshTokenCommand(dto.token),
-    );
+  async refresh(@Body() dto: RefreshTokenRequestDto): Promise<AuthenticationResponseDto> {
+    const result = await this.refreshTokenHandler.execute(new RefreshTokenCommand(dto.token));
 
     return {
       accessToken: result.accessToken,
@@ -204,8 +182,7 @@ export class AuthenticationController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({
     summary: 'Request a password reset',
-    description:
-      'Request a password reset email without disclosing account existence.',
+    description: 'Request a password reset email without disclosing account existence.',
   })
   @ApiSuccessResponse(ForgotPasswordResponseDto, {
     status: HttpStatus.ACCEPTED,
@@ -219,16 +196,11 @@ export class AuthenticationController {
     type: ErrorResponseDto,
     description: 'The password reset request could not be processed.',
   })
-  async forgotPassword(
-    @Body() dto: ForgotPasswordRequestDto,
-  ): Promise<ForgotPasswordResponseDto> {
-    await this.forgotPasswordHandler.execute(
-      new ForgotPasswordCommand(dto.email),
-    );
+  async forgotPassword(@Body() dto: ForgotPasswordRequestDto): Promise<ForgotPasswordResponseDto> {
+    await this.forgotPasswordHandler.execute(new ForgotPasswordCommand(dto.email));
 
     return {
-      message:
-        'We will send a link to reset your password if your account exist.',
+      message: 'We will send a link to reset your password if your account exist.',
     };
   }
 
@@ -252,9 +224,7 @@ export class AuthenticationController {
     description: 'The password could not be reset.',
   })
   async resetPassword(@Body() dto: ResetPasswordRequestDto): Promise<void> {
-    await this.resetPasswordHandler.execute(
-      new ResetPasswordCommand(dto.token, dto.newPassword),
-    );
+    await this.resetPasswordHandler.execute(new ResetPasswordCommand(dto.token, dto.newPassword));
   }
 
   @Post('change-password')
@@ -263,8 +233,7 @@ export class AuthenticationController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Change the current account password',
-    description:
-      'Change the password of the account represented by the access token.',
+    description: 'Change the password of the account represented by the access token.',
   })
   @ApiSuccessVoidResponse({
     status: HttpStatus.OK,
@@ -287,11 +256,7 @@ export class AuthenticationController {
     @Body() dto: ChangePasswordRequestDto,
   ): Promise<void> {
     await this.changePasswordHandler.execute(
-      new ChangePasswordCommand(
-        currentUser.accountId,
-        dto.currentPassword,
-        dto.newPassword,
-      ),
+      new ChangePasswordCommand(currentUser.accountId, dto.currentPassword, dto.newPassword),
     );
   }
 

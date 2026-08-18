@@ -24,11 +24,7 @@ import { randomUUID } from 'node:crypto';
               }
             : undefined,
         redact: {
-          paths: [
-            'req.headers.authorization',
-            'req.headers.cookie',
-            'res.headers["set-cookie"]',
-          ],
+          paths: ['req.headers.authorization', 'req.headers.cookie', 'res.headers["set-cookie"]'],
           remove: true,
         },
 
@@ -48,9 +44,7 @@ import { randomUUID } from 'node:crypto';
           const incomingId = req.headers['x-request-id'];
 
           const requestId =
-            typeof incomingId === 'string' && incomingId.length <= 100
-              ? incomingId
-              : randomUUID();
+            typeof incomingId === 'string' && incomingId.length <= 100 ? incomingId : randomUUID();
           res.setHeader('x-request-id', requestId);
           return requestId;
         },

@@ -25,8 +25,7 @@ export class LogoutHandler {
   async execute(command: LogoutCommand): Promise<void> {
     const refreshTokenHash = this.opaqueTokenHasher.hash(command.refreshToken);
 
-    const account =
-      await this.accountRepository.findByRefreshTokenHash(refreshTokenHash);
+    const account = await this.accountRepository.findByRefreshTokenHash(refreshTokenHash);
 
     if (account === null) {
       return;

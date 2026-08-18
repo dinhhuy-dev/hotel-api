@@ -9,22 +9,19 @@ export class VerifyEmailResponseDto {
   accountId!: string;
 
   @ApiProperty({
-    description:
-      'Whether the account was already verified before this request.',
+    description: 'Whether the account was already verified before this request.',
     example: false,
   })
   alreadyVerified!: boolean;
 
   @ApiPropertyOptional({
-    description:
-      'JWT access token returned when verification activates the account.',
+    description: 'JWT access token returned when verification activates the account.',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example',
   })
   accessToken?: string;
 
   @ApiPropertyOptional({
-    description:
-      'Opaque refresh token returned when verification activates the account.',
+    description: 'Opaque refresh token returned when verification activates the account.',
     example: 'refresh-token-example',
   })
   refreshToken?: string;

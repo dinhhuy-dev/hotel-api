@@ -17,10 +17,7 @@ export class TypeOrmAccountTokenRepository implements AccountTokenRepositoryPort
   ) {}
 
   private get repository(): Repository<AccountTokenOrmEntity> {
-    return this.transactionContext.getRepository(
-      AccountTokenOrmEntity,
-      this.defaultRepository,
-    );
+    return this.transactionContext.getRepository(AccountTokenOrmEntity, this.defaultRepository);
   }
 
   async findByTokenHashAndType(
@@ -32,10 +29,7 @@ export class TypeOrmAccountTokenRepository implements AccountTokenRepositoryPort
     return entity === null ? null : AccountTokenMapper.toDomain(entity);
   }
 
-  async deleteUnusedByAccountIdAndType(
-    accountId: string,
-    type: AccountTokenType,
-  ): Promise<void> {
+  async deleteUnusedByAccountIdAndType(accountId: string, type: AccountTokenType): Promise<void> {
     await this.repository
       .createQueryBuilder()
       .delete()

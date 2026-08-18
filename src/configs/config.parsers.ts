@@ -17,8 +17,6 @@ export function toStringList(value: string | undefined): string[] {
     : [];
 }
 
-export function toOptionalString(
-  value: string | undefined,
-): string | undefined {
+export function toOptionalString(value: string | undefined): string | undefined {
   return value?.trim() || undefined;
 }

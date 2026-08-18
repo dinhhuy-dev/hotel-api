@@ -61,10 +61,7 @@ export class SignInHandler {
 
     const now = this.clock.now();
 
-    const accessToken = await this.accessTokenService.createAccessToken(
-      account.id,
-      account.role,
-    );
+    const accessToken = await this.accessTokenService.createAccessToken(account.id, account.role);
 
     const refreshToken = this.opaqueTokenGenerator.generateRefreshToken();
 
