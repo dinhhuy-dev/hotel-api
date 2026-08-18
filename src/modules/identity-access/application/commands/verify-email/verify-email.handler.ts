@@ -51,19 +51,16 @@ export class VerifyEmailHandler {
 
     const now = this.clock.now();
 
-    const accountToken =
-      await this.accountTokenRepository.findByTokenHashAndType(
-        tokenHash,
-        AccountTokenType.EMAIL_VERIFICATION,
-      );
+    const accountToken = await this.accountTokenRepository.findByTokenHashAndType(
+      tokenHash,
+      AccountTokenType.EMAIL_VERIFICATION,
+    );
 
     if (accountToken === null) {
       throw new InvalidAccountTokenError();
     }
 
-    const account = await this.accountRepository.findById(
-      accountToken.accountId,
-    );
+    const account = await this.accountRepository.findById(accountToken.accountId);
     if (account === null) {
       throw new InvalidAccountTokenError();
     }
@@ -82,10 +79,7 @@ export class VerifyEmailHandler {
     accountToken.assertUsable(now);
     account.activateEmail(now);
 
-    const accessToken = await this.accessTokenService.createAccessToken(
-      account.id,
-      account.role,
-    );
+    const accessToken = await this.accessTokenService.createAccessToken(account.id, account.role);
 
     const refreshToken = this.opaqueTokenGenerator.generateRefreshToken();
     const refreshTokenHash = this.opaqueTokenHasher.hash(refreshToken.token);

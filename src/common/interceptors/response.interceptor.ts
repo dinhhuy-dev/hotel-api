@@ -1,9 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 
 export interface PaginationMeta {
@@ -36,10 +31,7 @@ type RequestWithId = Request & {
 };
 
 @Injectable()
-export class ResponseInterceptor implements NestInterceptor<
-  unknown,
-  SuccessResponse<unknown>
-> {
+export class ResponseInterceptor implements NestInterceptor<unknown, SuccessResponse<unknown>> {
   intercept(
     context: ExecutionContext,
     next: CallHandler<unknown>,

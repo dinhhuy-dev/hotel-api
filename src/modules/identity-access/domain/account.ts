@@ -32,9 +32,7 @@ export class Account {
     this.props.updatedAt = cloneDate(props.updatedAt) as Date;
   }
 
-  static createPendingVerification(
-    params: CreatePendingAccountParams,
-  ): Account {
+  static createPendingVerification(params: CreatePendingAccountParams): Account {
     const id = requireNonEmpty(params.id, 'Account ID');
     const email = normalizeEmail(params.email);
     const passwordHash = requireNonEmpty(params.passwordHash, 'Password hash');
@@ -59,10 +57,7 @@ export class Account {
     return new Account({
       ...props,
       email: normalizeEmail(props.email),
-      emailVerifiedAt: requireOptionalValidDate(
-        props.emailVerifiedAt,
-        'Email verification time',
-      ),
+      emailVerifiedAt: requireOptionalValidDate(props.emailVerifiedAt, 'Email verification time'),
       refreshTokenExpiresAt: requireOptionalValidDate(
         props.refreshTokenExpiresAt,
         'Refresh token expiration',
@@ -115,10 +110,7 @@ export class Account {
   activateEmail(verifiedAt: Date): void {
     const activationTime = requireValidDate(verifiedAt, 'Verification Time');
 
-    if (
-      this.props.status === AccountStatus.ACTIVE &&
-      this.props.emailVerifiedAt !== null
-    ) {
+    if (this.props.status === AccountStatus.ACTIVE && this.props.emailVerifiedAt !== null) {
       throw new AccountAlreadyVerifiedError();
     }
 
@@ -134,34 +126,22 @@ export class Account {
   }
 
   assertCanSignin() {
-    if (
-      this.props.status !== AccountStatus.ACTIVE ||
-      this.props.emailVerifiedAt === null
-    ) {
+    if (this.props.status !== AccountStatus.ACTIVE || this.props.emailVerifiedAt === null) {
       throw new AccountNotActiveError();
     }
   }
 
-  storeRefreshToken(
-    refreshTokenHash: string,
-    expiresAt: Date,
-    updatedAt: Date,
-  ) {
+  storeRefreshToken(refreshTokenHash: string, expiresAt: Date, updatedAt: Date) {
     this.assertCanSignin();
 
     const tokenHash = requireNonEmpty(refreshTokenHash, 'Refresh token hash');
 
-    const expiration = requireValidDate(
-      expiresAt,
-      'Refresh token expiration Time',
-    );
+    const expiration = requireValidDate(expiresAt, 'Refresh token expiration Time');
 
     const updateTime = requireValidDate(updatedAt, 'Update Time');
 
     if (expiration.getTime() <= updateTime.getTime()) {
-      throw new InvalidAccountStateError(
-        'Refresh token expiration time must be in the future',
-      );
+      throw new InvalidAccountStateError('Refresh token expiration time must be in the future');
     }
 
     this.props.refreshTokenHash = tokenHash;
@@ -236,9 +216,6 @@ function cloneDate(value: Date | null): Date | null {
   return value === null ? null : new Date(value.getTime());
 }
 
-function requireOptionalValidDate(
-  value: Date | null,
-  fieldName: string,
-): Date | null {
+function requireOptionalValidDate(value: Date | null, fieldName: string): Date | null {
   return value === null ? null : requireValidDate(value, fieldName);
 }

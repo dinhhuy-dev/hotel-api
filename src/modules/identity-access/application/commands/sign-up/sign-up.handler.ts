@@ -19,10 +19,7 @@ import type { IdGeneratorPort } from '../../ports/outbound/id-generator.port';
 import type { TransactionRunnerPort } from '../../ports/outbound/transaction-runner.port';
 import { SignUpCommand } from './sign-up.command';
 import { SignUpResult } from './sign-up.result';
-import {
-  Account,
-  normalizeEmail,
-} from 'src/modules/identity-access/domain/account';
+import { Account, normalizeEmail } from 'src/modules/identity-access/domain/account';
 import { EmailAlreadyRegisteredError } from '../../errors/identity-application.error';
 import { AccountToken } from 'src/modules/identity-access/domain/account-token';
 import type { OpaqueTokenGeneratorPort } from '../../ports/outbound/opaque-token-generator.port';
@@ -78,12 +75,9 @@ export class SignUpHandler {
       now,
     });
 
-    const verificationToken =
-      this.opaqueTokenGenerator.generateEmailVerificationToken();
+    const verificationToken = this.opaqueTokenGenerator.generateEmailVerificationToken();
 
-    const verificationTokenHash = this.opaqueTokenHasher.hash(
-      verificationToken.token,
-    );
+    const verificationTokenHash = this.opaqueTokenHasher.hash(verificationToken.token);
 
     const accountToken = AccountToken.createEmailVerificationToken({
       id: this.idGenerator.generate(),

@@ -1,12 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  RelationId,
-} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
 import { AccountOrmEntity } from './account.orm.entity';
 import { AccountTokenType } from '../../../domain/enums/account-token-type';
 

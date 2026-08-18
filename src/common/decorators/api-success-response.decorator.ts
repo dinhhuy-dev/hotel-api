@@ -32,9 +32,7 @@ export function ApiSuccessResponse<TModel extends Type<unknown>>(
   );
 }
 
-export function ApiSuccessVoidResponse(
-  options: ApiSuccessResponseOptions = {},
-): MethodDecorator {
+export function ApiSuccessVoidResponse(options: ApiSuccessResponseOptions = {}): MethodDecorator {
   return applyDecorators(
     ApiExtraModels(ResponseMetaDto),
     ApiResponse({

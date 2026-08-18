@@ -15,11 +15,7 @@ export interface EmailDeliveryResult {
 }
 
 export interface EmailServicePort {
-  sendVerificationEmail(
-    input: VerificationEmailInput,
-  ): Promise<EmailDeliveryResult>;
+  sendVerificationEmail(input: VerificationEmailInput): Promise<EmailDeliveryResult>;
 
-  sendPasswordResetEmail(
-    input: PasswordResetEmailInput,
-  ): Promise<EmailDeliveryResult>;
+  sendPasswordResetEmail(input: PasswordResetEmailInput): Promise<EmailDeliveryResult>;
 }

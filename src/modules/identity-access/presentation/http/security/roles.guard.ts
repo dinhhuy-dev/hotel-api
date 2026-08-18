@@ -25,10 +25,10 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const requiredRoles = this.reflector.getAllAndOverride<AccountRole[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredRoles = this.reflector.getAllAndOverride<AccountRole[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
@@ -47,9 +47,7 @@ export class RolesGuard implements CanActivate {
     const hasRequiredRole = requiredRoles.includes(request.user.role);
 
     if (!hasRequiredRole) {
-      throw new ForbiddenException(
-        'You are not authorized to perform this action',
-      );
+      throw new ForbiddenException('You are not authorized to perform this action');
     }
 
     return true;

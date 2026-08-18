@@ -16,10 +16,7 @@ export class TypeOrmAccountRepository implements AccountRepositoryPort {
   ) {}
 
   private get repository(): Repository<AccountOrmEntity> {
-    return this.transactionContext.getRepository(
-      AccountOrmEntity,
-      this.defaultRepository,
-    );
+    return this.transactionContext.getRepository(AccountOrmEntity, this.defaultRepository);
   }
 
   async findById(id: string): Promise<Account | null> {
@@ -34,9 +31,7 @@ export class TypeOrmAccountRepository implements AccountRepositoryPort {
     return entity === null ? null : AccountMapper.toDomain(entity);
   }
 
-  async findByRefreshTokenHash(
-    refreshTokenHash: string,
-  ): Promise<Account | null> {
+  async findByRefreshTokenHash(refreshTokenHash: string): Promise<Account | null> {
     const entity = await this.repository.findOneBy({ refreshTokenHash });
 
     return entity === null ? null : AccountMapper.toDomain(entity);

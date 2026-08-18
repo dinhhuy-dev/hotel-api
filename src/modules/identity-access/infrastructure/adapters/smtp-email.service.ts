@@ -61,9 +61,7 @@ export class SmtpEmailService implements EmailServicePort {
       });
   }
 
-  async sendVerificationEmail(
-    input: VerificationEmailInput,
-  ): Promise<EmailDeliveryResult> {
+  async sendVerificationEmail(input: VerificationEmailInput): Promise<EmailDeliveryResult> {
     try {
       const verificationUrl = new URL(this.configuration.verificationUrlBase!);
 
@@ -98,9 +96,7 @@ export class SmtpEmailService implements EmailServicePort {
     }
   }
 
-  async sendPasswordResetEmail(
-    input: PasswordResetEmailInput,
-  ): Promise<EmailDeliveryResult> {
+  async sendPasswordResetEmail(input: PasswordResetEmailInput): Promise<EmailDeliveryResult> {
     try {
       await this.transporter.sendMail({
         from: this.configuration.from,

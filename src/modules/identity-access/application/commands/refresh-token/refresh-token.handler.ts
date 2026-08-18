@@ -37,8 +37,7 @@ export class RefreshTokenHandler {
   async execute(command: RefreshTokenCommand): Promise<AuthenticationResult> {
     const refreshTokenHash = this.opaqueTokenHasher.hash(command.token);
 
-    const account =
-      await this.accountRepository.findByRefreshTokenHash(refreshTokenHash);
+    const account = await this.accountRepository.findByRefreshTokenHash(refreshTokenHash);
 
     if (account === null) {
       throw new InvalidRefreshTokenError();
@@ -50,29 +49,17 @@ export class RefreshTokenHandler {
 
     const storedExpiration = account.refreshTokenExpiresAt;
 
-    if (
-      storedExpiration === null ||
-      storedExpiration.getTime() <= now.getTime()
-    ) {
+    if (storedExpiration === null || storedExpiration.getTime() <= now.getTime()) {
       throw new InvalidRefreshTokenError();
     }
 
-    const accessToken = await this.accessTokenService.createAccessToken(
-      account.id,
-      account.role,
-    );
+    const accessToken = await this.accessTokenService.createAccessToken(account.id, account.role);
 
     const newRefreshToken = this.opaqueTokenGenerator.generateRefreshToken();
 
-    const newRefreshTokenHash = this.opaqueTokenHasher.hash(
-      newRefreshToken.token,
-    );
+    const newRefreshTokenHash = this.opaqueTokenHasher.hash(newRefreshToken.token);
 
-    account.storeRefreshToken(
-      newRefreshTokenHash,
-      newRefreshToken.expiresAt,
-      now,
-    );
+    account.storeRefreshToken(newRefreshTokenHash, newRefreshToken.expiresAt, now);
 
     await this.accountRepository.save(account);
 

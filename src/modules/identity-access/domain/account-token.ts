@@ -35,9 +35,7 @@ export class AccountToken {
     this.props.usedAt = cloneDate(props.usedAt);
   }
 
-  static createEmailVerificationToken(
-    params: CreateEmailVerificationTokenParams,
-  ): AccountToken {
+  static createEmailVerificationToken(params: CreateEmailVerificationTokenParams): AccountToken {
     const id = requireNonEmpty(params.id, 'Token ID');
     const accountId = requireNonEmpty(params.accountId, 'Account ID');
     const tokenHash = requireNonEmpty(params.tokenHash, 'Token hash');
@@ -45,9 +43,7 @@ export class AccountToken {
     const now = requireValidDate(params.now, 'Creation Time');
 
     if (expiresAt.getTime() <= now.getTime()) {
-      throw new InvalidAccountStateError(
-        'Token expiration must be in the future',
-      );
+      throw new InvalidAccountStateError('Token expiration must be in the future');
     }
 
     return new AccountToken({
@@ -61,9 +57,7 @@ export class AccountToken {
     });
   }
 
-  static createPasswordResetToken(
-    params: CreatePasswordResetTokenParams,
-  ): AccountToken {
+  static createPasswordResetToken(params: CreatePasswordResetTokenParams): AccountToken {
     const id = requireNonEmpty(params.id, 'Token ID');
     const accountId = requireNonEmpty(params.accountId, 'Account ID');
     const tokenHash = requireNonEmpty(params.tokenHash, 'Token hash');
@@ -71,9 +65,7 @@ export class AccountToken {
     const now = requireValidDate(params.now, 'Creation Time');
 
     if (expiresAt.getTime() <= now.getTime()) {
-      throw new InvalidAccountStateError(
-        'Token expiration must be in the future',
-      );
+      throw new InvalidAccountStateError('Token expiration must be in the future');
     }
 
     return new AccountToken({
@@ -92,10 +84,7 @@ export class AccountToken {
       ...props,
       expiresAt: requireValidDate(props.expiresAt, 'Token expiration'),
       createdAt: requireValidDate(props.createdAt, 'Creation time'),
-      usedAt:
-        props.usedAt === null
-          ? null
-          : requireValidDate(props.usedAt, 'Used time'),
+      usedAt: props.usedAt === null ? null : requireValidDate(props.usedAt, 'Used time'),
     });
   }
 

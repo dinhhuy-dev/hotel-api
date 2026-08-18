@@ -8,9 +8,7 @@ const port = Joi.number().integer().min(1).max(65535);
 const positiveInteger = Joi.number().integer().positive();
 
 export const envValidationSchema = Joi.object({
-  NODE_ENV: Joi.string()
-    .valid('development', 'test', 'staging', 'production')
-    .optional(),
+  NODE_ENV: Joi.string().valid('development', 'test', 'staging', 'production').optional(),
 
   APP_NAME: Joi.string().trim().min(1).optional(),
 
@@ -36,9 +34,7 @@ export const envValidationSchema = Joi.object({
 
   REFRESH_COOKIE_NAME: Joi.string().trim().min(1).optional(),
 
-  REFRESH_COOKIE_SAME_SITE: Joi.string()
-    .valid('strict', 'lax', 'none')
-    .optional(),
+  REFRESH_COOKIE_SAME_SITE: Joi.string().valid('strict', 'lax', 'none').optional(),
 
   DB_HOST: Joi.string().trim().min(1).required(),
 

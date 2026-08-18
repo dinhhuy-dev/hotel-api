@@ -44,11 +44,10 @@ export class ResetPasswordHandler {
     const now = this.clock.now();
     const tokenHash = this.opaqueTokenHasher.hash(command.token);
 
-    const accountToken =
-      await this.accountTokenRepository.findByTokenHashAndType(
-        tokenHash,
-        AccountTokenType.PASSWORD_RESET,
-      );
+    const accountToken = await this.accountTokenRepository.findByTokenHashAndType(
+      tokenHash,
+      AccountTokenType.PASSWORD_RESET,
+    );
 
     if (accountToken === null) {
       throw new InvalidAccountTokenError();
@@ -56,9 +55,7 @@ export class ResetPasswordHandler {
 
     accountToken.assertUsable(now);
 
-    const account = await this.accountRepository.findById(
-      accountToken.accountId,
-    );
+    const account = await this.accountRepository.findById(accountToken.accountId);
 
     if (
       account === null ||
