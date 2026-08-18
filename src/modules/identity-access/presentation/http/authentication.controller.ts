@@ -200,7 +200,7 @@ export class AuthenticationController {
     await this.forgotPasswordHandler.execute(new ForgotPasswordCommand(dto.email));
 
     return {
-      message: 'We will send a link to reset your password if your account exist.',
+      message: 'We will send a link to reset your password if your account exists.',
     };
   }
 

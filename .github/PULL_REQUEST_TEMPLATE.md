@@ -8,12 +8,15 @@
 
 ## Testing
 
-**Automated tests**
--
+### Automated tests
 
-**Manual testing steps** 1.
+- [] ...
 
-**Edge cases checked**
+### Manual testing steps
+
+1. ...
+
+### Edge cases checked
 
 - [ ]
 

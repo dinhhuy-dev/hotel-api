@@ -1,12 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "agents-md": {
-      "source": "getsentry/skills",
-      "sourceType": "github",
-      "skillPath": "skills/agents-md/SKILL.md",
-      "computedHash": "cb8762f32057215819cd1fd213d4ad606b77daf06e0a7d15b9039a261481d5f3"
-    },
     "caveman-commit": {
       "source": "juliusbrussee/caveman",
       "sourceType": "github",

@@ -192,7 +192,7 @@ Use synchronous calls when the caller needs a result before completing its opera
 
 Use in-process events for secondary work that does not decide whether the main operation succeeds. The main examples are notifications, emails, reports, and housekeeping task creation after check-out.
 
-Publish events after the main database transaction commits. Event payloads contain identifiers and required facts, not TypeORM entities.
+Publish events after the main database transaction commits. This will use transactional outbox later when project growing. Event payloads contain identifiers and required facts, not TypeORM entities.
 
 ### Transactions
 
