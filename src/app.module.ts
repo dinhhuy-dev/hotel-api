@@ -6,6 +6,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './database/database.module';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module';
 import { randomUUID } from 'node:crypto';
+import { RoomCatalogModule } from './modules/room-catalog/room-catalog.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { randomUUID } from 'node:crypto';
     }),
     DatabaseModule,
     IdentityAccessModule,
+    RoomCatalogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

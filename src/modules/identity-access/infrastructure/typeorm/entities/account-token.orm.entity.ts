@@ -26,7 +26,6 @@ export class AccountTokenOrmEntity {
     name: 'type',
     type: 'enum',
     enum: AccountTokenType,
-    enumName: 'account_tokens_type_enum',
   })
   type!: AccountTokenType;
 
