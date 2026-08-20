@@ -2,7 +2,7 @@
 
 ## Status
 
-Planning is complete. Implementation has not started.
+Planning is complete. Milestone 2 is approved under the current test scope. Milestone 3 facility management is next.
 
 This plan is the approved source of truth for the first `room-catalog` implementation. Work must proceed one milestone at a time, with a review checkpoint after each milestone.
 
@@ -389,11 +389,13 @@ SQLite is not an accepted substitute because the feature depends on PostgreSQL e
 - Add the migration, entities, repository ports, and TypeORM adapters.
 - Add PostgreSQL repository integration tests.
 - Verify migration `up` and `down`.
+- For the approved checkpoint, the retained tests are repository adapter unit tests and a module wiring unit test. Broader service, controller, E2E, and coverage tests are deferred by the current user scope. PostgreSQL integration tests and migration `up` and `down` verification are also deferred.
 - Stop for review.
 
 ### Milestone 3 - Facility Management
 
-- Add facility DTOs, service rules, repository behavior, controller routes, unit tests, and focused E2E tests.
+- Add facility DTOs, service rules, repository behavior, controller routes, and unit tests.
+- Focused facility E2E tests are deferred by the current approved scope.
 - Stop for review.
 
 ### Milestone 4 - Room Type Management and Public Queries

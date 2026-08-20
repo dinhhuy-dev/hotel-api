@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { RoomCatalogService } from './room-catalog.service';
-import { RoomCatalogController } from './room-catalog.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Facility } from './entities/facility.entity';
 import { RoomType } from './entities/room-type.entity';
@@ -14,12 +12,14 @@ import {
   ROOM_REPOSITORY,
   ROOM_TYPE_REPOSITORY,
 } from './repositories/ports/room-catalog-repository.token';
+import { ManagementFacilityController } from './controller/facility.controller';
+import { FacilityService } from './services/facility.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Facility, RoomType, Room, RoomTypeFacility])],
-  controllers: [RoomCatalogController],
+  controllers: [ManagementFacilityController],
   providers: [
-    RoomCatalogService,
+    FacilityService,
     TypeOrmFacilityRepository,
     TypeOrmRoomTypeRepository,
     TypeOrmRoomRepository,

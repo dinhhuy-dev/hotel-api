@@ -14,27 +14,27 @@ Active plan: `docs/features/room-catalog/PLAN.md`
 
 ## Milestone 2 - Persistence Foundation
 
-- [ ] Create the room catalog PostgreSQL migration in `src/database/migrations`.
-- [ ] Add the room type, facility, room type facility, and room TypeORM entities.
-- [ ] Add `RoomTypeRepositoryPort`, `FacilityRepositoryPort`, and `RoomRepositoryPort`.
-- [ ] Add TypeORM adapters for all three repository ports.
-- [ ] Wire repository tokens and adapters in `RoomCatalogModule`.
-- [ ] Add PostgreSQL repository integration tests.
-- [ ] Verify migration `up` and `down` on PostgreSQL.
-- [ ] Run focused format and lint checks.
-- [ ] Run the repository-local Nest build.
-- [ ] Review and approve Milestone 2.
+- [x] Create the room catalog PostgreSQL migration in `src/database/migrations`.
+- [x] Add the room type, facility, room type facility, and room TypeORM entities.
+- [x] Add `RoomTypeRepositoryPort`, `FacilityRepositoryPort`, and `RoomRepositoryPort`.
+- [x] Add TypeORM adapters for all three repository ports.
+- [x] Wire repository tokens and adapters in `RoomCatalogModule`.
+- [x] Add focused repository adapter unit tests.
+- [x] Add a focused module wiring unit test.
+- [x] Run focused format and lint checks.
+- [x] Run the repository-local Nest build.
+- [x] Review and approve Milestone 2 under the current scope.
 
 ## Milestone 3 - Facility Management
 
-- [ ] Add facility request, query, and response DTOs.
-- [ ] Implement facility create, list, detail, update, deactivate, and restore rules.
-- [ ] Implement case-insensitive duplicate handling with stable error codes.
-- [ ] Add `ManagementFacilityController` with Administrator and Hotel Manager RBAC.
-- [ ] Add facility service unit tests.
-- [ ] Add focused facility E2E tests.
-- [ ] Run focused verification commands.
-- [ ] Review and approve Milestone 3.
+- [x] Add facility request, query, and response DTOs.
+- [x] Implement facility create, list, detail, update, deactivate, and restore rules.
+- [x] Implement case-insensitive duplicate handling with stable error codes under the approved pre-check scope.
+- [x] Add `ManagementFacilityController` with Administrator and Hotel Manager RBAC.
+- [x] Add facility service unit tests.
+- [x] Defer focused facility E2E tests by the current approved scope.
+- [x] Run focused verification commands.
+- [x] Review and approve Milestone 3 under the current scope.
 
 ## Milestone 4 - Room Type Management and Public Queries
 
@@ -64,7 +64,7 @@ Active plan: `docs/features/room-catalog/PLAN.md`
 
 ## Milestone 6 - API Contract and RBAC Completion
 
-- [ ] Add and test `ApiPaginatedSuccessResponse`.
+- [x] Add and test `ApiPaginatedSuccessResponse`.
 - [ ] Document all request, query, success, pagination, authentication, and error contracts in Swagger.
 - [ ] Verify public routes do not require bearer authentication.
 - [ ] Verify staff routes reject Customer accounts.

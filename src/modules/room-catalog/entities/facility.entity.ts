@@ -15,7 +15,7 @@ export class Facility {
   name!: string;
 
   @Column({ name: 'description', type: 'varchar', length: 500, nullable: true })
-  description?: string;
+  description!: string | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;

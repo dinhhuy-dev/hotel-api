@@ -1,6 +1,6 @@
 import { applyDecorators, HttpStatus, Type } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
-import { ResponseMetaDto } from '../presentation/http/dto/response-meta.dto';
+import { PaginationMetaDto, ResponseMetaDto } from '../presentation/http/dto/response-meta.dto';
 
 export interface ApiSuccessResponseOptions {
   readonly status?: number;
@@ -25,6 +25,47 @@ export function ApiSuccessResponse<TModel extends Type<unknown>>(
           },
           meta: {
             $ref: getSchemaPath(ResponseMetaDto),
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiPaginatedSuccessResponse<TModel extends Type<unknown>>(
+  model: TModel,
+  options: ApiSuccessResponseOptions = {},
+): MethodDecorator {
+  return applyDecorators(
+    ApiExtraModels(model, ResponseMetaDto, PaginationMetaDto),
+    ApiResponse({
+      status: options.status ?? HttpStatus.OK,
+      description: options.description ?? 'Successful paginated response.',
+      schema: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              $ref: getSchemaPath(model),
+            },
+          },
+          meta: {
+            allOf: [
+              {
+                $ref: getSchemaPath(ResponseMetaDto),
+              },
+              {
+                type: 'object',
+                required: ['pagination'],
+                properties: {
+                  pagination: {
+                    $ref: getSchemaPath(PaginationMetaDto),
+                  },
+                },
+              },
+            ],
           },
         },
       },

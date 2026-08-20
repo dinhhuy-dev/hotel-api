@@ -23,13 +23,13 @@ export class RoomType {
   name!: string;
 
   @Column({ name: 'description', type: 'varchar', length: 1000, nullable: true })
-  description?: string;
+  description!: string | null;
 
   @Column({ name: 'max_occupancy', type: 'integer' })
   maxOccupancy!: number;
 
   @Column({ name: 'bed_configuration', type: 'varchar', length: 200, nullable: true })
-  bedConfiguration?: string;
+  bedConfiguration!: string | null;
 
   @Column({ name: 'display_order', type: 'integer', default: 0 })
   displayOrder!: number;
