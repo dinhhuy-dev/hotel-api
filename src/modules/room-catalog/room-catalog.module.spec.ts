@@ -8,8 +8,11 @@ import {
 import { TypeOrmFacilityRepository } from './repositories/typeorm/typeorm-facility.repository';
 import { TypeOrmRoomRepository } from './repositories/typeorm/typeorm-room.repository';
 import { TypeOrmRoomTypeRepository } from './repositories/typeorm/typeorm-room-type.repository';
-import { ManagementFacilityController } from './controller/facility.controller';
+import { ManagementFacilityController } from './controller/management-facility.controller';
 import { FacilityService } from './services/facility.service';
+import { ManagementRoomTypeController } from './controller/management-room-type.controller';
+import { PublicRoomTypeController } from './controller/public-room-type.controller';
+import { RoomTypeService } from './services/room-type.service';
 
 describe('RoomCatalogModule', () => {
   it('registers the room catalog providers and repository aliases', () => {
@@ -21,10 +24,13 @@ describe('RoomCatalogModule', () => {
     expect(RoomCatalogModule).toBeDefined();
     expect(Reflect.getMetadata(MODULE_METADATA.CONTROLLERS, RoomCatalogModule)).toEqual([
       ManagementFacilityController,
+      ManagementRoomTypeController,
+      PublicRoomTypeController,
     ]);
     expect(providers).toEqual(
       expect.arrayContaining([
         FacilityService,
+        RoomTypeService,
         TypeOrmFacilityRepository,
         TypeOrmRoomTypeRepository,
         TypeOrmRoomRepository,

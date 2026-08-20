@@ -12,14 +12,22 @@ import {
   ROOM_REPOSITORY,
   ROOM_TYPE_REPOSITORY,
 } from './repositories/ports/room-catalog-repository.token';
-import { ManagementFacilityController } from './controller/facility.controller';
+import { ManagementFacilityController } from './controller/management-facility.controller';
 import { FacilityService } from './services/facility.service';
+import { ManagementRoomTypeController } from './controller/management-room-type.controller';
+import { PublicRoomTypeController } from './controller/public-room-type.controller';
+import { RoomTypeService } from './services/room-type.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Facility, RoomType, Room, RoomTypeFacility])],
-  controllers: [ManagementFacilityController],
+  controllers: [
+    ManagementFacilityController,
+    ManagementRoomTypeController,
+    PublicRoomTypeController,
+  ],
   providers: [
     FacilityService,
+    RoomTypeService,
     TypeOrmFacilityRepository,
     TypeOrmRoomTypeRepository,
     TypeOrmRoomRepository,

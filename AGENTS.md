@@ -59,14 +59,14 @@
 - Preserve unrelated working-tree changes.
 - When a port or interface changes, update every adapter implementation in the same milestone.
 
-## Human-First Implementation Workflow
+## Agent-Led Implementation Workflow
 
-- The user writes feature implementation code and tests; the agent guides, diagnoses, and reviews.
-- For feature work, provide a concise file-level plan and one representative file or function example, then pause for the user's implementation.
-- Treat requests for guidance, next steps, continuation, or review as read-only; do not create or modify feature source or test files.
-- Do not proactively complete a feature milestone or generate an entire test suite on the user's behalf.
-- Edit feature source or tests only when the user explicitly requests that exact code change; required project tracking updates remain allowed.
-- Review submitted changes with focused checks and evidence before moving to the next milestone.
+- The agent implements feature source code and tests directly. The user reviews each completed checkpoint.
+- For feature work, state a concise file-level plan, implement the affected production and test files, then run the narrowest relevant verification.
+- Complete one coherent, reviewable checkpoint at a time and pause for user review before starting the next checkpoint.
+- Guidance, explanation, diagnosis, and review requests remain read-only unless the user also requests a code change.
+- The agent may edit feature source and tests within the active approved checkpoint. Preserve unrelated working-tree changes.
+- Record focused verification evidence and update required progress tracking before handing a checkpoint to the user for review.
 
 ## Progress Tracking
 

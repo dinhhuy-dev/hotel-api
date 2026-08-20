@@ -1,7 +1,7 @@
 import { ROLES_KEY } from 'src/common/decorators/roles.decorator';
 import { FacilityResponseDto } from '../dto/facility/facility-response.dto';
 import { FacilityService } from '../services/facility.service';
-import { ManagementFacilityController } from './facility.controller';
+import { ManagementFacilityController } from './management-facility.controller';
 import { AccountRole } from 'src/modules/identity-access/domain/enums/account-role';
 import { CreateFacilityDto } from '../dto/facility/create-facility.dto';
 import { FacilityQueryDto } from '../dto/facility/facility-query.dto';

@@ -38,15 +38,15 @@ Active plan: `docs/features/room-catalog/PLAN.md`
 
 ## Milestone 4 - Room Type Management and Public Queries
 
-- [ ] Add room type request, query, and response DTOs.
-- [ ] Implement room type create, list, detail, update, deactivate, and restore rules.
-- [ ] Implement atomic bulk facility add and remove operations.
-- [ ] Implement room type transactions and stable row locking.
-- [ ] Add `ManagementRoomTypeController` with Administrator and Hotel Manager RBAC.
-- [ ] Add `PublicRoomTypeController` with active-only public queries.
-- [ ] Add room type and facility-assignment service unit tests.
-- [ ] Add focused public and management room type E2E tests.
-- [ ] Run focused verification commands.
+- [x] Add room type request, query, and response DTOs.
+- [x] Implement room type create, list, detail, update, deactivate, and restore rules.
+- [x] Implement atomic bulk facility add and remove operations.
+- [x] Implement room type transactions and stable row locking.
+- [x] Add `ManagementRoomTypeController` with Administrator and Hotel Manager RBAC.
+- [x] Add `PublicRoomTypeController` with active-only public queries.
+- [x] Add room type and facility-assignment service unit tests.
+- [x] Defer focused public and management room type E2E tests by the current user-approved scope.
+- [x] Run focused verification commands.
 - [ ] Review and approve Milestone 4.
 
 ## Milestone 5 - Room Management and Staff Queries
@@ -58,7 +58,7 @@ Active plan: `docs/features/room-catalog/PLAN.md`
 - [ ] Add `ManagementRoomController` with Administrator and Hotel Manager RBAC.
 - [ ] Add `StaffRoomController` with all five non-customer staff roles.
 - [ ] Add room service unit tests.
-- [ ] Add focused management, staff, lifecycle, and RBAC E2E tests.
+- [x] Defer focused management, staff, lifecycle, and RBAC E2E tests by the current user-approved scope.
 - [ ] Run focused verification commands.
 - [ ] Review and approve Milestone 5.
 
@@ -70,14 +70,14 @@ Active plan: `docs/features/room-catalog/PLAN.md`
 - [ ] Verify staff routes reject Customer accounts.
 - [ ] Verify management routes reject non-management staff roles.
 - [ ] Verify hidden inactive and retired resources return `404`.
-- [ ] Run all room catalog unit, integration, and E2E tests.
+- [ ] Run all in-scope room catalog unit and integration tests. E2E coverage is deferred by the current user-approved scope.
 - [ ] Run relevant format and lint checks.
 - [ ] Run the repository-local Nest build.
 - [ ] Review and approve Milestone 6.
 
 ## Milestone 7 - Feature Verification and Documentation Review
 
-- [ ] Re-run the full room catalog test set.
+- [ ] Re-run the full in-scope room catalog test set. E2E coverage is deferred by the current user-approved scope.
 - [ ] Re-run migration `up` and `down` verification on PostgreSQL.
 - [ ] Re-run relevant format and lint checks.
 - [ ] Re-run the repository-local Nest build.

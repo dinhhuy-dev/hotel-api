@@ -368,7 +368,7 @@ Add a shared `ApiPaginatedSuccessResponse(ItemDto)` decorator because the curren
 - Service unit tests cover business rules, lifecycle checks, state transitions, idempotent operations, and error mappings.
 - Controller unit tests cover delegation and response mapping where behavior is not already proven by E2E tests.
 - Repository integration tests use PostgreSQL and cover mappings, case-insensitive uniqueness, foreign keys, queries, transactions, and row locking.
-- E2E tests cover public access, staff access, management RBAC, DTO validation, pagination, hidden inactive resources, lifecycle operations, and error responses.
+- E2E coverage is deferred by the current user-approved scope.
 - Migration `up` and `down` are tested on PostgreSQL.
 - Relevant format and lint checks pass.
 - The repository-local Nest build passes when module wiring is added.
@@ -400,18 +400,18 @@ SQLite is not an accepted substitute because the feature depends on PostgreSQL e
 
 ### Milestone 4 - Room Type Management and Public Queries
 
-- Add room type DTOs, service rules, facility assignment operations, management routes, public routes, unit tests, and focused E2E tests.
+- Add room type DTOs, service rules, facility assignment operations, management routes, public routes, and unit tests. Focused E2E tests are deferred by the current user-approved scope.
 - Stop for review.
 
 ### Milestone 5 - Room Management and Staff Queries
 
-- Add room DTOs, lifecycle transitions, management routes, staff routes, unit tests, and focused E2E tests.
+- Add room DTOs, lifecycle transitions, management routes, staff routes, and unit tests. Focused E2E tests are deferred by the current user-approved scope.
 - Stop for review.
 
 ### Milestone 6 - API Contract and RBAC Completion
 
 - Add the paginated Swagger decorator.
-- Complete response documentation and RBAC E2E coverage across all routes.
+- Complete response documentation across all routes. RBAC E2E coverage is deferred by the current user-approved scope.
 - Run relevant lint, format, test, and build checks.
 - Stop for review.
 
@@ -430,7 +430,7 @@ The feature is complete only when:
 - Every task in `TASK.md` is complete.
 - All approved access rules and business invariants are implemented.
 - Database constraints and transaction behavior are verified on PostgreSQL.
-- Unit, integration, and E2E tests pass.
+- Applicable unit and integration tests pass. E2E coverage is deferred by the current user-approved scope.
 - Relevant lint and format checks pass.
 - The repository-local Nest build passes.
 - Swagger matches the runtime response contract.
