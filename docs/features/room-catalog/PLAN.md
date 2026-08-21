@@ -2,7 +2,7 @@
 
 ## Status
 
-Planning is complete. Milestone 2 is approved under the current test scope. Milestone 3 facility management is next.
+Implementation and review are complete. Milestones 1 through 7 are approved under the controller and service unit-test scope confirmed on 2026-08-21.
 
 This plan is the approved source of truth for the first `room-catalog` implementation. Work must proceed one milestone at a time, with a review checkpoint after each milestone.
 
@@ -261,7 +261,7 @@ The response interceptor receives a `PaginatedResult<T>` and emits:
 Supported queries include:
 
 - Room types: search by code or name, filter by lifecycle in management routes.
-- Rooms: search by room number, filter by room type, floor, operational status, and retired state where authorized.
+- Rooms: search by room number and filter by room type, floor, and operational status. Staff routes always hide retired rooms.
 - Facilities: search by name, filter by lifecycle in management routes.
 
 ## Validation
@@ -303,8 +303,13 @@ Expected error codes include:
 - `DUPLICATE_FACILITY_NAME`
 - `ROOM_TYPE_IN_USE`
 - `FACILITY_IN_USE`
+- `ROOM_RETIRED`
+- `ROOM_NOT_RETIRED`
+- `ROOM_TYPE_CHANGE_NOT_ALLOWED`
 - `INACTIVE_ROOM_TYPE`
 - `INACTIVE_FACILITY`
+- `INVALID_FACILITIES`
+- `INVALID_ROOM_UPDATE`
 - `INVALID_ROOM_STATUS_TRANSITION`
 
 Errors must not expose SQL details, stack traces, TypeORM errors, or internal class names.
@@ -365,15 +370,13 @@ Add a shared `ApiPaginatedSuccessResponse(ItemDto)` decorator because the curren
 
 ## Testing Strategy
 
-- Service unit tests cover business rules, lifecycle checks, state transitions, idempotent operations, and error mappings.
-- Controller unit tests cover delegation and response mapping where behavior is not already proven by E2E tests.
-- Repository integration tests use PostgreSQL and cover mappings, case-insensitive uniqueness, foreign keys, queries, transactions, and row locking.
-- E2E coverage is deferred by the current user-approved scope.
-- Migration `up` and `down` are tested on PostgreSQL.
+- Service unit tests are required and cover business rules, lifecycle checks, state transitions, idempotent operations, response mapping, and error mapping.
+- Controller unit tests are required and cover delegation, RBAC metadata, public-route metadata, and Swagger response metadata.
+- Only Room Catalog controller and service unit tests are required for feature completion.
+- Repository adapter, module wiring, DTO, shared decorator, repository integration, E2E, and migration verification tests are outside the required completion scope. Existing tests may remain in the repository but do not need to run for future Room Catalog checkpoints unless the user changes the scope.
+- Any future database-specific verification must use PostgreSQL. SQLite is not an accepted substitute for PostgreSQL enums, expression indexes, foreign keys, or row locking.
 - Relevant format and lint checks pass.
-- The repository-local Nest build passes when module wiring is added.
-
-SQLite is not an accepted substitute because the feature depends on PostgreSQL enums, expression indexes, foreign keys, and row locking behavior.
+- The repository-local Nest build passes.
 
 ## Milestones
 
@@ -411,17 +414,18 @@ SQLite is not an accepted substitute because the feature depends on PostgreSQL e
 ### Milestone 6 - API Contract and RBAC Completion
 
 - Add the paginated Swagger decorator.
-- Complete response documentation across all routes. RBAC E2E coverage is deferred by the current user-approved scope.
+- Complete response documentation across all routes and verify access metadata through controller unit tests.
 - Run relevant lint, format, test, and build checks.
 - Stop for review.
 
 ### Milestone 7 - Feature Verification and Documentation Review
 
-- Run the full room catalog test set.
-- Recheck migration behavior and module wiring.
+- Run the full Room Catalog controller and service unit-test set.
+- Treat repository integration, E2E, migration, module wiring, DTO, and shared decorator tests as outside the required completion scope.
 - Review README, architecture, plan, task tracking, and progress status for accuracy.
+- Review Swagger metadata and module boundaries against the approved plan.
 - Record exact verification evidence.
-- Stop for final review.
+- Mark the feature complete under the approved scope.
 
 ## Definition of Done
 
@@ -429,8 +433,7 @@ The feature is complete only when:
 
 - Every task in `TASK.md` is complete.
 - All approved access rules and business invariants are implemented.
-- Database constraints and transaction behavior are verified on PostgreSQL.
-- Applicable unit and integration tests pass. E2E coverage is deferred by the current user-approved scope.
+- All Room Catalog controller and service unit tests pass.
 - Relevant lint and format checks pass.
 - The repository-local Nest build passes.
 - Swagger matches the runtime response contract.

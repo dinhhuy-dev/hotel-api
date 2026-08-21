@@ -17,6 +17,9 @@ import { FacilityService } from './services/facility.service';
 import { ManagementRoomTypeController } from './controller/management-room-type.controller';
 import { PublicRoomTypeController } from './controller/public-room-type.controller';
 import { RoomTypeService } from './services/room-type.service';
+import { ManagementRoomController } from './controller/management-room.controller';
+import { StaffRoomController } from './controller/staff-room.controller';
+import { RoomService } from './services/room.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Facility, RoomType, Room, RoomTypeFacility])],
@@ -24,10 +27,13 @@ import { RoomTypeService } from './services/room-type.service';
     ManagementFacilityController,
     ManagementRoomTypeController,
     PublicRoomTypeController,
+    ManagementRoomController,
+    StaffRoomController,
   ],
   providers: [
     FacilityService,
     RoomTypeService,
+    RoomService,
     TypeOrmFacilityRepository,
     TypeOrmRoomTypeRepository,
     TypeOrmRoomRepository,

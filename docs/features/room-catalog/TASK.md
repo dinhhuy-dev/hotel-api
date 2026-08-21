@@ -2,6 +2,8 @@
 
 Active plan: `docs/features/room-catalog/PLAN.md`
 
+Status: Complete under the controller and service unit-test scope approved on 2026-08-21.
+
 ## Milestone 1 - Planning and Tracking
 
 - [x] Confirm the feature scope, authorization, data model, lifecycle, API, and testing decisions.
@@ -47,50 +49,50 @@ Active plan: `docs/features/room-catalog/PLAN.md`
 - [x] Add room type and facility-assignment service unit tests.
 - [x] Defer focused public and management room type E2E tests by the current user-approved scope.
 - [x] Run focused verification commands.
-- [ ] Review and approve Milestone 4.
+- [x] Review and approve Milestone 4 under the current E2E-deferred scope.
 
 ## Milestone 5 - Room Management and Staff Queries
 
-- [ ] Add room request, query, status, and response DTOs.
-- [ ] Implement room create, list, detail, metadata update, retire, and restore rules.
-- [ ] Implement operational status transitions and same-state idempotency.
-- [ ] Implement room type change restrictions and dependency locking.
-- [ ] Add `ManagementRoomController` with Administrator and Hotel Manager RBAC.
-- [ ] Add `StaffRoomController` with all five non-customer staff roles.
-- [ ] Add room service unit tests.
+- [x] Add room request, query, status, and response DTOs.
+- [x] Implement room create, list, detail, metadata update, retire, and restore rules.
+- [x] Implement operational status transitions and same-state idempotency.
+- [x] Implement room type change restrictions and dependency locking.
+- [x] Add `ManagementRoomController` with Administrator and Hotel Manager RBAC.
+- [x] Add `StaffRoomController` with all five non-customer staff roles.
+- [x] Add room service unit tests.
 - [x] Defer focused management, staff, lifecycle, and RBAC E2E tests by the current user-approved scope.
-- [ ] Run focused verification commands.
-- [ ] Review and approve Milestone 5.
+- [x] Run focused verification commands.
+- [x] Review and approve Milestone 5 under the current E2E-deferred scope.
 
 ## Milestone 6 - API Contract and RBAC Completion
 
 - [x] Add and test `ApiPaginatedSuccessResponse`.
-- [ ] Document all request, query, success, pagination, authentication, and error contracts in Swagger.
-- [ ] Verify public routes do not require bearer authentication.
-- [ ] Verify staff routes reject Customer accounts.
-- [ ] Verify management routes reject non-management staff roles.
-- [ ] Verify hidden inactive and retired resources return `404`.
-- [ ] Run all in-scope room catalog unit and integration tests. E2E coverage is deferred by the current user-approved scope.
-- [ ] Run relevant format and lint checks.
-- [ ] Run the repository-local Nest build.
-- [ ] Review and approve Milestone 6.
+- [x] Document all request, query, success, pagination, authentication, and error contracts in Swagger.
+- [x] Verify public routes do not require bearer authentication.
+- [x] Verify staff routes reject Customer accounts.
+- [x] Verify management routes reject non-management staff roles.
+- [x] Verify hidden inactive and retired resources return `404`.
+- [x] Run all in-scope Room Catalog controller and service unit tests.
+- [x] Run relevant format and lint checks.
+- [x] Run the repository-local Nest build.
+- [x] Review and approve Milestone 6 under the controller and service unit-test scope.
 
 ## Milestone 7 - Feature Verification and Documentation Review
 
-- [ ] Re-run the full in-scope room catalog test set. E2E coverage is deferred by the current user-approved scope.
-- [ ] Re-run migration `up` and `down` verification on PostgreSQL.
-- [ ] Re-run relevant format and lint checks.
-- [ ] Re-run the repository-local Nest build.
-- [ ] Review API and Swagger output against the approved plan.
-- [ ] Review module boundaries and confirm no pricing, inventory, reservation, stay, or customer dependency was added.
-- [ ] Update `README.md` if implemented behavior needs user-facing documentation.
-- [ ] Update `docs/architecture.md` if implementation changed an approved architectural convention.
-- [ ] Record exact verification evidence in `PROGRESS.md`.
-- [ ] Mark the feature complete only after every required task and verification step passes.
+- [x] Re-run the full Room Catalog controller and service unit-test set.
+- [x] Record repository integration, E2E, and PostgreSQL migration verification as outside the required completion scope.
+- [x] Re-run relevant format and lint checks.
+- [x] Re-run the repository-local Nest build.
+- [x] Review API and Swagger metadata against the approved plan.
+- [x] Review module boundaries and confirm no pricing, inventory, reservation, stay, or customer dependency was added.
+- [x] Review `README.md`; no implemented behavior requires an update.
+- [x] Review `docs/architecture.md`; no approved architectural convention changed.
+- [x] Record exact verification evidence in `PROGRESS.md`.
+- [x] Mark the feature complete after every required task and verification step passes.
 
-## Deferred Integration
+## Future Work Outside the Completed Scope
 
-- [ ] Add a minimal public room catalog query contract when `pricing` has a concrete consumer requirement.
-- [ ] Add events when `inventory-availability`, housekeeping, maintenance, or reporting has a concrete consumer requirement.
-- [ ] Add stay and inventory consistency checks when those modules exist.
-- [ ] Design status history or audit storage only when reporting or compliance requirements are defined.
+- Add a minimal public room catalog query contract when `pricing` has a concrete consumer requirement.
+- Add events when `inventory-availability`, housekeeping, maintenance, or reporting has a concrete consumer requirement.
+- Add stay and inventory consistency checks when those modules exist.
+- Design status history or audit storage only when reporting or compliance requirements are defined.
