@@ -4,7 +4,7 @@ This document defines the target architecture for Hotel API. See [`README.md`](.
 
 ## 1. System Context
 
-Hotel API serves customer applications and hotel staff applications through HTTP APIs. It manages one hotel and stores operational data in one PostgreSQL database. The notification module sends customer and staff emails through an email delivery service.
+Hotel API serves customer applications and hotel staff applications through HTTP APIs. It manages one hotel and stores operational data in one PostgreSQL database.
 
 ```mermaid
 flowchart LR
@@ -13,12 +13,9 @@ flowchart LR
 
     subgraph Backend["NestJS modular monolith"]
         API --> Modules["Core business modules"]
-        Modules --> Notification["Notification module"]
     end
 
     Modules --> Database[(PostgreSQL)]
-    Notification --> Database
-    Notification --> Email["Email delivery service"]
 ```
 
 ## 2. Architecture Style
@@ -48,21 +45,18 @@ The application has two internal architecture styles:
 
 ## 4. Module Landscape
 
-| Module                   | Responsibility                                                    | Owned information                                       |
-| ------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------- |
-| `identity-access`        | Authentication, accounts, account roles, and credentials          | Accounts, roles, password hashes, and account tokens    |
-| `customer`               | Customer profiles and personal information                        | Contact and identification details                      |
-| `room-catalog`           | Room types, physical rooms, facilities, floors, and room status   | Room types and rooms                                    |
-| `pricing`                | Prices for each room type and date range                          | Room-type prices                                        |
-| `inventory-availability` | Availability checks and sellable room inventory                   | Availability records and inventory blocks               |
-| `reservation`            | Reservation creation, confirmation, updates, and cancellation     | Reservations and reservation status                     |
-| `stay`                   | Room assignment, check-in, and check-out                          | Stays, room assignments, and arrival or departure times |
-| `payment`                | Deposits, payments, refunds, and payment status                   | Payment transactions                                    |
-| `invoice`                | Invoice creation and storage                                      | Invoices and invoice items                              |
-| `housekeeping`           | Cleaning task creation, assignment, and progress                  | Housekeeping tasks                                      |
-| `maintenance`            | Maintenance request creation, assignment, and progress            | Maintenance requests and tasks                          |
-| `notification`           | Application notifications and email delivery                      | Notification and delivery records                       |
-| `reporting`              | Revenue, reservation, occupancy, room-status, and payment reports | Report read models and generated summaries              |
+| Module                   | Responsibility                                                  | Owned information                                       |
+| ------------------------ | --------------------------------------------------------------- | ------------------------------------------------------- |
+| `identity-access`        | Authentication, accounts, account roles, and credentials        | Accounts, roles, password hashes, and account tokens    |
+| `customer`               | Customer profiles and personal information                      | Contact and identification details                      |
+| `room-catalog`           | Room types, physical rooms, facilities, floors, and room status | Room types, facilities, rooms, and operational status   |
+| `pricing`                | Prices for each room type and date range                        | Room-type prices                                        |
+| `inventory-availability` | Availability checks and sellable room inventory                 | Availability records and inventory blocks               |
+| `reservation`            | Reservation creation, confirmation, updates, and cancellation   | Reservations and reservation status                     |
+| `stay`                   | Room assignment, check-in, and check-out                        | Stays, room assignments, and arrival or departure times |
+| `payment`                | Deposits, payments, refunds, and payment status                 | Payment transactions                                    |
+| `housekeeping`           | Cleaning task creation, assignment, and progress                | Housekeeping tasks                                      |
+| `maintenance`            | Maintenance request creation, assignment, and progress          | Maintenance requests and tasks                          |
 
 ### Dependency Overview
 
@@ -78,11 +72,8 @@ flowchart LR
     Reservation["reservation"]
     Stay["stay"]
     Payment["payment"]
-    Invoice["invoice"]
     Housekeeping["housekeeping"]
     Maintenance["maintenance"]
-    Notification["notification"]
-    Reporting["reporting"]
 
     Pricing --> Rooms
     Inventory --> Rooms
@@ -92,22 +83,11 @@ flowchart LR
     Stay --> Reservation
     Stay --> Rooms
     Payment --> Reservation
-    Invoice --> Reservation
-    Invoice --> Payment
     Housekeeping --> Rooms
     Maintenance --> Rooms
     Maintenance --> Inventory
 
-    Reservation -.-> Notification
-    Stay -.-> Notification
-    Payment -.-> Notification
-    Invoice -.-> Notification
     Stay -.-> Housekeeping
-
-    Rooms -.-> Reporting
-    Reservation -.-> Reporting
-    Stay -.-> Reporting
-    Payment -.-> Reporting
 ```
 
 `identity-access` protects HTTP routes and creates the authenticated-user context. Business modules read that context at the presentation boundary and pass the required account or customer identifiers into their application logic.
@@ -186,11 +166,10 @@ Use synchronous calls when the caller needs a result before completing its opera
 - `reservation` checks prices through `pricing`.
 - `reservation` checks and reserves inventory through `inventory-availability`.
 - `stay` reads reservation information before check-in.
-- `invoice` reads reservation and payment information before creating an invoice.
 
 ### In-Process Events
 
-Use in-process events for secondary work that does not decide whether the main operation succeeds. The main examples are notifications, emails, reports, and housekeeping task creation after check-out.
+Use in-process events for secondary work that does not decide whether the main operation succeeds. The main example is housekeeping task creation after check-out.
 
 Publish events after the main database transaction commits. This will use transactional outbox later when project growing. Event payloads contain identifiers and required facts, not TypeORM entities.
 
@@ -210,9 +189,10 @@ The application uses one PostgreSQL database and TypeORM. Sharing a database doe
 - A migration changes only the tables owned by its module unless one coordinated change must update both sides of a relationship.
 - Services use database transactions for multi-write operations that must succeed or fail together.
 - Availability is rechecked inside the reservation write transaction before the system accepts a reservation.
-- Reporting reads through public query contracts or module-owned read models.
 
 ## 8. API and Cross-Cutting Concerns
+
+See [`http-conventions.md`](http-conventions.md) for source-backed routing, response envelope, pagination, Swagger, and exception-filter behavior.
 
 ### Request Flow
 
@@ -243,7 +223,9 @@ Paginated responses add pagination information to `meta`. Controllers return bus
 
 ### Errors
 
-Domain and service errors remain independent from HTTP. The presentation layer maps known errors to stable HTTP status codes and error codes. Unknown errors return a generic internal error without stack traces, SQL details, or provider responses.
+The `identity-access` domain and application errors remain independent from HTTP. Its presentation layer maps known errors to stable HTTP status codes and error codes.
+
+Standard NestJS business module services may throw NestJS HTTP exception subclasses directly. Their exception payloads use stable, machine-readable error codes and safe client messages. Unknown errors return a generic internal error without stack traces, SQL details, internal class names, or provider responses.
 
 ### Validation and API Documentation
 
@@ -281,13 +263,13 @@ Tests cover successful behavior, authorization failures, invalid state changes, 
 
 ## 11. Key Architecture Rules
 
-| Area                    | Rule                                                                               |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| Hotel scope             | Model the single hotel managed by the system.                                      |
-| `identity-access`       | Keep Clean Architecture dependencies directed toward the domain.                   |
-| Other modules           | Use the standard NestJS layered structure.                                         |
-| Module access           | Communicate through public contracts and in-process events.                        |
-| Persistence             | Keep TypeORM entities and migrations under their owning modules.                   |
-| Reservation consistency | Recheck availability in the reservation write transaction.                         |
-| Authorization           | Derive account-role RBAC and ownership information from the authenticated context. |
-| API output              | Return response DTOs through the `{ data, meta }` envelope.                        |
+| Area                    | Rule                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Hotel scope             | Model the single hotel managed by the system.                                                                 |
+| `identity-access`       | Keep Clean Architecture dependencies directed toward the domain.                                              |
+| Other modules           | Use the standard NestJS layered structure.                                                                    |
+| Module access           | Communicate through public contracts and in-process events.                                                   |
+| Persistence             | Keep TypeORM entities module-owned. Store migrations centrally and scope each migration to its owning module. |
+| Reservation consistency | Recheck availability in the reservation write transaction.                                                    |
+| Authorization           | Derive account-role RBAC and ownership information from the authenticated context.                            |
+| API output              | Return response DTOs through the `{ data, meta }` envelope.                                                   |

@@ -1,22 +1,24 @@
-# Progress Log
+# Project Progress
 
-## 2026-08-17
+Last updated: 2026-08-21
 
-### Completed
+## Next Feature
 
-- Replaced the NestJS starter README with the Hotel API project overview and functional scope.
-- Added `docs/architecture.md` with the target backend architecture and technical conventions.
-- Added root agent instructions and defined the project-context and progress-update workflow.
+- Feature: `pricing`
+- Status: Not started. Scope confirmation and planning are next.
+- Plan: Not created.
+- Task checklist: Not created.
 
-### In Progress
+## Completed
 
-- None.
+- `room-catalog`: Complete under the controller and service unit-test scope. See `docs/features/room-catalog/PLAN.md` and `docs/features/room-catalog/TASK.md`.
+- Verification: 8 controller/service suites and 82 tests passed. ESLint, Prettier, build, and `git diff --check` passed.
 
-### Known Issues
+## Current Issues
 
-- The global npm launcher in the current environment cannot find `npm-cli.js`. Repository-local Node.js commands remain available for build, test, lint, and format checks.
+- Room Catalog changes are uncommitted and must be preserved.
+- Use repository-local Node.js commands because the global npm launcher is unreliable.
 
-### Next Steps
+## Next Step
 
-- Create feature-specific `PLAN.md` and `TASK.md` files before starting the next feature.
-- Record their exact paths in this log while the feature is active.
+- Confirm pricing scope, then create its `PLAN.md` and `TASK.md`.

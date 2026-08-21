@@ -5,30 +5,38 @@
 - Write all code, comments, tests, and documentation in plain English.
 - Never use the em dash character. Use a plain hyphen instead.
 
-## Project Context Documents
+## Project Overview
 
-Before starting any task, read these documents in order:
-
-1. `README.md` for the project overview and product scope.
-2. `docs/architecture.md` for architecture and technical conventions.
-3. `PROGRESS.md` for the latest status, unfinished work, known issues, and next steps.
-4. For feature work, read the active feature's `PLAN.md` and `TASK.md` paths recorded in `PROGRESS.md`.
-
-- Verify code and tests before claiming that a planned feature is implemented.
+- Hotel API is a backend for managing one hotel. It uses NestJS 11, TypeScript, PostgreSQL, and TypeORM.
+- The application is a modular monolith. `identity-access` uses Clean Architecture; other business modules use the standard NestJS layered structure.
 - Preserve the single-hotel scope. Do not add branches, multi-hotel behavior, or tenancy fields.
 
-## Architecture
+## Environment
 
-- Organize the application as a NestJS modular monolith by business capability.
-- Use Clean Architecture only in the `identity-access` module.
-- Keep the `identity-access` domain and application layers independent from NestJS, HTTP, TypeORM, and external providers.
-- Use standard NestJS modules, controllers, services, repositories, DTOs, and entities for other business modules.
-- Use account roles for RBAC. Do not add dynamic permission management.
-
-## Package Manager
-
+- The primary development environment is Windows with PowerShell.
 - Use npm and keep `package-lock.json` synchronized with `package.json`.
-- Prefer repository-local tool commands. A broken global npm launcher is an environment error, not a project build failure.
+- Prefer the repository-local Node.js tool commands listed below. A broken global npm launcher is an environment error, not a project build failure.
+- Use PostgreSQL, not SQLite, for migrations and database-specific integration behavior.
+
+## Project Structure
+
+- `src/modules/` contains business modules.
+- `src/common/` contains shared HTTP and cross-cutting code.
+- `src/configs/` contains application configuration.
+- `src/database/` contains the TypeORM data source and centralized migrations.
+- `test/` contains E2E tests; unit tests stay beside source files.
+- `docs/` contains architecture, conventions, feature plans, and task checklists.
+
+## Project Context Documents
+
+- Read only the documents relevant to the current task:
+  - `README.md` for product scope, user roles, setup, or commands.
+  - `docs/architecture.md` for architecture, module boundaries, persistence, API, or cross-cutting changes.
+  - `PROGRESS.md` for current status, unfinished work, known issues, or next steps.
+  - For active feature planning, implementation, or review, read `PROGRESS.md`, then the active `PLAN.md` and `TASK.md` paths it records.
+- When multiple conditions apply, read the applicable files in the order listed above.
+- Skip unrelated project documents for simple, self-contained tasks.
+- Verify code and tests before claiming that a planned feature is implemented.
 
 ## Commands
 
@@ -51,9 +59,17 @@ Before starting any task, read these documents in order:
 - Preserve unrelated working-tree changes.
 - When a port or interface changes, update every adapter implementation in the same milestone.
 
-## Progress Updates
+## Agent-Led Implementation Workflow
 
-- Mark an item complete in the active feature's `TASK.md` as soon as it is finished. Do not wait until the end of the session.
-- At the end of every session, update the root `PROGRESS.md` before sending the final response.
-- Add the newest dated entry at the top with `Completed`, `In Progress`, `Known Issues`, and `Next Steps` sections.
-- Record the exact paths of the active feature's `PLAN.md` and `TASK.md` in `PROGRESS.md`.
+- The agent implements feature source code and tests directly. The user reviews each completed checkpoint.
+- For feature work, state a concise file-level plan, implement the affected production and test files, then run the narrowest relevant verification.
+- Complete one coherent, reviewable checkpoint at a time and pause for user review before starting the next checkpoint.
+- Guidance, explanation, diagnosis, and review requests remain read-only unless the user also requests a code change.
+- The agent may edit feature source and tests within the active approved checkpoint. Preserve unrelated working-tree changes.
+- Record focused verification evidence and update required progress tracking before handing a checkpoint to the user for review.
+
+## Progress Tracking
+
+- Mark an item complete in the active feature's `TASK.md` as soon as it is finished.
+- Keep root `PROGRESS.md` as the current project snapshot. Refresh it after material state changes by replacing outdated information; do not update it for read-only work unless the recorded state needs correction.
+- Record the active checkpoint, current issues, next steps, latest verification evidence, and exact active `PLAN.md` and `TASK.md` paths. Use Git history instead of recording routine session activity.
