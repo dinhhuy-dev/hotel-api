@@ -84,7 +84,7 @@ export class ManagementRoomTypeController {
     type: ErrorResponseDto,
     description: 'Room type does not exist.',
   })
-  findOne(@Param(ParseUUIDPipe) id: string): Promise<RoomTypeResponseDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<RoomTypeResponseDto> {
     return this.service.findOne(id);
   }
 
@@ -128,7 +128,7 @@ export class ManagementRoomTypeController {
     description: 'Room type does not exist.',
   })
   update(
-    @Param(ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateRoomTypeDto,
   ): Promise<RoomTypeResponseDto> {
     return this.service.update(id, dto);
@@ -155,7 +155,7 @@ export class ManagementRoomTypeController {
     type: ErrorResponseDto,
     description: 'A non-retired Room uses the room type.',
   })
-  deactivate(@Param(ParseUUIDPipe) id: string): Promise<RoomTypeResponseDto> {
+  deactivate(@Param('id', ParseUUIDPipe) id: string): Promise<RoomTypeResponseDto> {
     return this.service.deactivate(id);
   }
 
@@ -180,7 +180,7 @@ export class ManagementRoomTypeController {
     type: ErrorResponseDto,
     description: 'An assigned Facility is inactive.',
   })
-  restore(@Param(ParseUUIDPipe) id: string): Promise<RoomTypeResponseDto> {
+  restore(@Param('id', ParseUUIDPipe) id: string): Promise<RoomTypeResponseDto> {
     return this.service.restore(id);
   }
 
@@ -203,7 +203,7 @@ export class ManagementRoomTypeController {
     description: 'Room type does not exist.',
   })
   addFacilities(
-    @Param(ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: RoomTypeFacilityIdsDto,
   ): Promise<RoomTypeResponseDto> {
     return this.service.addFacilities(id, dto);
@@ -228,7 +228,7 @@ export class ManagementRoomTypeController {
     description: 'Room type does not exist.',
   })
   removeFacilities(
-    @Param(ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: RoomTypeFacilityIdsDto,
   ): Promise<RoomTypeResponseDto> {
     return this.service.removeFacilities(id, dto);

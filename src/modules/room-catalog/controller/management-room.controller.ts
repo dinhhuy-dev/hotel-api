@@ -85,7 +85,7 @@ export class ManagementRoomController {
     type: ErrorResponseDto,
     description: 'Room does not exist.',
   })
-  findOne(@Param(ParseUUIDPipe) id: string): Promise<RoomResponseDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<RoomResponseDto> {
     return this.service.findOne(id);
   }
 
@@ -137,7 +137,10 @@ export class ManagementRoomController {
     description:
       'The room is retired, the room number already exists, the room type is inactive, or the status does not allow a room type change.',
   })
-  update(@Param(ParseUUIDPipe) id: string, @Body() dto: UpdateRoomDto): Promise<RoomResponseDto> {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateRoomDto,
+  ): Promise<RoomResponseDto> {
     return this.service.update(id, dto);
   }
 
@@ -163,7 +166,7 @@ export class ManagementRoomController {
     description: 'The requested room operational status transition is invalid.',
   })
   updateStatus(
-    @Param(ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateRoomStatusDto,
   ): Promise<RoomResponseDto> {
     return this.service.updateStatus(id, dto);
@@ -186,7 +189,7 @@ export class ManagementRoomController {
     type: ErrorResponseDto,
     description: 'Room does not exist.',
   })
-  retire(@Param(ParseUUIDPipe) id: string): Promise<RoomResponseDto> {
+  retire(@Param('id', ParseUUIDPipe) id: string): Promise<RoomResponseDto> {
     return this.service.retire(id);
   }
 
@@ -211,7 +214,7 @@ export class ManagementRoomController {
     type: ErrorResponseDto,
     description: 'The room is not retired or its room type is inactive.',
   })
-  restore(@Param(ParseUUIDPipe) id: string): Promise<RoomResponseDto> {
+  restore(@Param('id', ParseUUIDPipe) id: string): Promise<RoomResponseDto> {
     return this.service.restore(id);
   }
 }

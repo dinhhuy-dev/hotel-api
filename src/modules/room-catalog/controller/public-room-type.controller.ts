@@ -59,7 +59,7 @@ export class PublicRoomTypeController {
     type: ErrorResponseDto,
     description: 'Room type does not exist or is inactive.',
   })
-  findOne(@Param(ParseUUIDPipe) id: string): Promise<PublicRoomTypeDetailDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<PublicRoomTypeDetailDto> {
     return this.service.findPublicOne(id);
   }
 }

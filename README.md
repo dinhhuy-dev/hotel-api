@@ -2,15 +2,15 @@
 
 ## Overview
 
-Hotel API is a backend system for managing one hotel. It provides APIs for room inventory, pricing, customers, reservations, stays, payments, hotel operations, notifications, and reports. Customers can search for available rooms, view prices, make online reservations, and manage their reservations.
+Hotel API is a backend system for managing one hotel. It provides APIs for room inventory, pricing, customers, reservations, stays, payments, and hotel operations. Customers can search for available rooms, view prices, make online reservations, and manage their reservations.
 
 The system supports one hotel only. It does not support branches or multiple hotels.
 
 ## User Roles
 
 - **Administrator:** Creates accounts, changes account roles, and manages system settings.
-- **Hotel Manager:** Manages hotel operations, room prices, room status, staff tasks, and reports.
-- **Receptionist:** Manages customers, reservations, check-in, check-out, payments, and invoices.
+- **Hotel Manager:** Manages hotel operations, room prices, room status, and staff tasks.
+- **Receptionist:** Manages customers, reservations, check-in, check-out, and payments.
 - **Housekeeping Staff:** Views and updates assigned room-cleaning tasks.
 - **Maintenance Staff:** Views and handles room maintenance requests.
 - **Customer:** Searches for rooms, views prices, makes reservations, and manages personal information and reservations.
@@ -45,21 +45,13 @@ Customers can search for available rooms and make online reservations. Reception
 
 Receptionists can confirm guest arrivals, assign rooms, record check-in times, complete check-out, and update room and reservation status.
 
-### Payments and Invoices
+### Payments
 
-The system records deposits, payments, refunds, and payment status. It also creates and stores reservation invoices.
+The system records deposits, payments, refunds, and payment status.
 
 ### Housekeeping and Maintenance
 
 Hotel managers can create and assign cleaning and maintenance tasks. Housekeeping and maintenance staff can update their assigned tasks. Room status reflects active cleaning and maintenance work.
-
-### Notifications and Email
-
-The system sends notifications and emails for reservation confirmations, reservation cancellations, payment confirmations, invoices, and check-in reminders.
-
-### Reports and Statistics
-
-Administrators and hotel managers can view basic reports for revenue, reservations, room occupancy, room status, and payments.
 
 ## Architecture
 

@@ -87,7 +87,7 @@ export class ManagementFacilityController {
     type: ErrorResponseDto,
     description: 'Facility does not exist.',
   })
-  findOne(@Param(ParseUUIDPipe) id: string): Promise<FacilityResponseDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<FacilityResponseDto> {
     return this.service.findOne(id);
   }
 
@@ -138,7 +138,7 @@ export class ManagementFacilityController {
     description: 'A facility with the same name already exists.',
   })
   update(
-    @Param(ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateFacilityDto,
   ): Promise<FacilityResponseDto> {
     return this.service.update(id, dto);
@@ -169,7 +169,7 @@ export class ManagementFacilityController {
     type: ErrorResponseDto,
     description: 'Facility is assigned to an active room type.',
   })
-  deactivate(@Param(ParseUUIDPipe) id: string): Promise<FacilityResponseDto> {
+  deactivate(@Param('id', ParseUUIDPipe) id: string): Promise<FacilityResponseDto> {
     return this.service.deactivate(id);
   }
 
@@ -194,7 +194,7 @@ export class ManagementFacilityController {
     type: ErrorResponseDto,
     description: 'Facility does not exist.',
   })
-  restore(@Param(ParseUUIDPipe) id: string): Promise<FacilityResponseDto> {
+  restore(@Param('id', ParseUUIDPipe) id: string): Promise<FacilityResponseDto> {
     return this.service.restore(id);
   }
 }

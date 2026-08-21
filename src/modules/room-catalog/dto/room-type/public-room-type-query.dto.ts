@@ -1,5 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PublicRoomTypeQueryDto {
@@ -34,9 +34,11 @@ export class PublicRoomTypeQueryDto {
   @ApiPropertyOptional({
     description: 'Search active room type code or name.',
     example: 'deluxe',
+    maxLength: 100,
   })
   @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   search?: string | null;
 }

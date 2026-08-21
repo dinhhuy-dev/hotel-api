@@ -75,7 +75,7 @@ export class StaffRoomController {
     type: ErrorResponseDto,
     description: 'Room does not exist or is retired.',
   })
-  findOne(@Param(ParseUUIDPipe) id: string): Promise<StaffRoomResponseDto> {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<StaffRoomResponseDto> {
     return this.service.findOneForStaff(id);
   }
 }
