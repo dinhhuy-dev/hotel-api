@@ -1,0 +1,1 @@
+export const ROOM_RATE_REPOSITORY = Symbol('ROOM_RATE_REPOSITORY');

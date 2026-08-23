@@ -41,6 +41,7 @@ describe('RoomTypeService', () => {
     Pick<
       RoomTypeRepositoryPort,
       | 'createWithFacilities'
+      | 'findById'
       | 'findAllWithFacilities'
       | 'findWithFacilitiesById'
       | 'findActivePage'
@@ -64,6 +65,7 @@ describe('RoomTypeService', () => {
   beforeEach(() => {
     repository = {
       createWithFacilities: jest.fn(),
+      findById: jest.fn(),
       findAllWithFacilities: jest.fn(),
       findWithFacilitiesById: jest.fn(),
       findActivePage: jest.fn(),
@@ -306,6 +308,23 @@ describe('RoomTypeService', () => {
         error: 'ROOM_TYPE_NOT_FOUND',
       },
     });
+  });
+
+  it('returns the minimal Room Type record required by Pricing', async () => {
+    const roomType = createRoomType({ isActive: false });
+    repository.findById.mockResolvedValue(roomType);
+
+    await expect(service.findById(roomType.id)).resolves.toEqual({
+      id: roomType.id,
+      isActive: false,
+    });
+    expect(repository.findById).toHaveBeenCalledWith(roomType.id);
+  });
+
+  it('returns null to Pricing when the Room Type does not exist', async () => {
+    repository.findById.mockResolvedValue(null);
+
+    await expect(service.findById('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')).resolves.toBeNull();
   });
 
   it('updates mutable room type fields and preserves code and facilities', async () => {

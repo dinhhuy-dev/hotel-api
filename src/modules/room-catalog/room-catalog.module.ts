@@ -20,6 +20,7 @@ import { RoomTypeService } from './services/room-type.service';
 import { ManagementRoomController } from './controller/management-room.controller';
 import { StaffRoomController } from './controller/staff-room.controller';
 import { RoomService } from './services/room.service';
+import { PRICING_ROOM_TYPE_QUERY } from './contracts/pricing-room-type-query.contract';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Facility, RoomType, Room, RoomTypeFacility])],
@@ -49,6 +50,11 @@ import { RoomService } from './services/room.service';
       provide: ROOM_REPOSITORY,
       useExisting: TypeOrmRoomRepository,
     },
+    {
+      provide: PRICING_ROOM_TYPE_QUERY,
+      useExisting: RoomTypeService,
+    },
   ],
+  exports: [PRICING_ROOM_TYPE_QUERY],
 })
 export class RoomCatalogModule {}

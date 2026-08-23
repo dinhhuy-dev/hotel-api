@@ -5,11 +5,11 @@ Last updated: 2026-08-23
 ## Active Feature
 
 - Feature: `pricing`
-- Active checkpoint: Milestone 1 - Planning and Tracking.
-- Status: Planning checkpoint created and awaiting review. No Pricing implementation has started.
+- Active checkpoint: Milestones 2 and 3 review.
+- Status: Milestones 2 and 3 are implemented and awaiting review. Milestone 4 has not started.
 - Plan: `docs/features/pricing/PLAN.md`.
 - Task checklist: `docs/features/pricing/TASK.md`.
-- Latest verification: Pricing planning documents and architecture update passed Prettier and `git diff --check` on 2026-08-23.
+- Latest verification: 3 focused Pricing and Room Catalog controller/service suites passed with 51 tests after the DTO, service, and repository responsibility review. Focused ESLint, Prettier, Nest build, and `git diff --check` passed on 2026-08-23.
 
 ## Completed
 
@@ -20,11 +20,10 @@ Last updated: 2026-08-23
 
 ## Current Issues
 
-- Development Seed Data changes are uncommitted and must be preserved.
-- Pricing migration, source code, and tests do not exist yet.
-- PostgreSQL execution of the future Pricing exclusion constraint is not part of the planning checkpoint.
+- PostgreSQL execution of the Pricing migration and exclusion constraint remains unverified.
+- Pricing Milestones 2 and 3 require user review before Milestone 4 starts.
 - Use repository-local Node.js commands because the global npm launcher is unreliable.
 
 ## Next Step
 
-- Review and approve Pricing Milestone 1 before implementation starts.
+- Review Pricing Milestones 2 and 3. After approval, start Milestone 4 - Internal Bulk Quote Contract.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Milestone 1 planning is complete and awaiting review. No Pricing migration, entity, repository, service, controller, or test has been implemented.
+Milestone 1 is approved. Milestones 2 and 3 are implemented and awaiting review. The internal bulk quote contract in Milestone 4 has not been implemented.
 
 This plan defines Pricing independently from the future Booking implementation. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 
@@ -86,7 +86,7 @@ EXCLUDE USING gist (
 )
 ```
 
-The migration creates the extension with `CREATE EXTENSION IF NOT EXISTS btree_gist` before creating the constraint. Migration execution must fail clearly if the database role cannot install or use the required extension. The exclusion constraint is the final concurrency-safe protection even when two create commands pass the application pre-check at the same time.
+The migration creates the extension with `CREATE EXTENSION IF NOT EXISTS btree_gist` before creating the constraint. Migration execution must fail clearly if the database role cannot install or use the required extension. The application uses an overlap pre-check for its expected management flow. The exclusion constraint remains a database integrity rule, but Pricing does not map its database error into an application conflict.
 
 ## Date and Amount Rules
 
@@ -110,7 +110,7 @@ Existing rates remain as pricing history if a Room Type is later deactivated. Ne
 
 Pricing depends on Room Catalog through a minimal module-owned query contract. Room Catalog remains independent from Pricing.
 
-The contract accepts a bulk set of Room Type IDs and returns module-owned records containing only the facts Pricing needs:
+The contract accepts one Room Type ID and returns a module-owned record containing only the facts Pricing needs, or `null` when the Room Type does not exist:
 
 ```ts
 interface PricingRoomTypeRecord {
@@ -119,7 +119,7 @@ interface PricingRoomTypeRecord {
 }
 ```
 
-Pricing uses this contract for management validation. It must not import a Room Catalog controller, entity, repository, or internal service. The Room Catalog module exports only the intentional query contract and its token or facade.
+Pricing uses this contract for management validation. It must not import a Room Catalog controller, entity, repository, or internal service. The Room Catalog module exports only the intentional query token, implemented directly by its existing `RoomTypeService`.
 
 Unknown Room Type IDs produce `ROOM_TYPE_NOT_FOUND`. Inactive Room Types produce `INACTIVE_ROOM_TYPE` for create and update commands.
 
@@ -261,7 +261,7 @@ Status mapping:
 - `404`: Room Rate or Room Type does not exist.
 - `409`: Inactive Room Type, overlapping range, or attempted mutation of a started rate.
 
-The repository maps the PostgreSQL exclusion-constraint violation to `ROOM_RATE_OVERLAP` without exposing SQL, constraint internals, or TypeORM errors.
+The service returns `ROOM_RATE_OVERLAP` after using the repository overlap query for its application pre-check. PostgreSQL exclusion-constraint violations are not mapped because they are outside the expected serial management flow.
 
 ## Module Structure
 
@@ -282,20 +282,20 @@ src/modules/pricing/
 Responsibility split:
 
 - `ManagementRoomRateController` handles management HTTP input and output.
-- `RoomRateService` applies management lifecycle rules.
+- Request DTOs use built-in `class-validator` decorators for field-level format, type, and value rules.
+- `RoomRateService` applies cross-field, current-date, Room Type state, overlap, and management lifecycle rules.
 - `PricingQuoteService` implements the bulk internal quote contract.
-- `RoomRateRepositoryPort` owns Pricing persistence operations.
-- The TypeORM adapter owns bulk rate reads and database-error translation.
+- `RoomRateRepositoryPort` exposes only Pricing persistence operations and data queries.
+- The TypeORM adapter reads and writes Pricing data without deciding application errors.
 
 Do not create one broad service that combines management, quotes, Room Catalog reads, and future Booking behavior.
 
 ## Transactions and Concurrency
 
-- Create and update perform a friendly overlap pre-check before writing.
-- The PostgreSQL exclusion constraint is the final protection against concurrent overlaps.
-- Update and delete lock the target Room Rate row with `pessimistic_write` before checking whether it has started.
-- Transactional code uses repositories created from the transaction manager only.
-- Multiple lock identifiers are sorted before lock acquisition.
+- Pricing management operations are assumed to execute serially in the single-hotel operating model.
+- Create and update perform an overlap pre-check before writing.
+- Create, update, and delete are single-record management writes and do not use application transactions or row locks.
+- The PostgreSQL exclusion constraint remains a schema integrity rule. Pricing does not map its database violation because it is not an expected application path under the serial-operation assumption.
 - Quote operations are read-only snapshots and do not lock or reserve rates.
 - Booking must re-request Pricing quotes inside its own future reservation transaction and store accepted snapshots. A prior availability response is not a price guarantee.
 
@@ -309,12 +309,12 @@ List routes use `ApiPaginatedSuccessResponse`. Object routes use `ApiSuccessResp
 
 The required automated scope is controller and service unit tests only, matching the current user-approved feature-testing boundary.
 
-- `RoomRateService` tests cover active Room Type validation, future-only mutations, overlap handling, multi-range date filtering, transactional behavior, response mapping, and safe error mapping.
+- `RoomRateService` tests cover active Room Type validation, future-only mutations, overlap pre-check results, multi-range date filtering, and response mapping.
 - `PricingQuoteService` tests cover single and multiple applied rate ranges, complete coverage, clipped first and last applied boundaries, gaps, bulk ordering, invalid input, and integer totals.
 - Controller tests cover delegation, RBAC metadata, route metadata, pagination, Swagger response metadata, and the absence of a public Pricing controller.
 - The Room Catalog public-contract service receives focused service unit coverage.
 - Repository adapter, DTO, module-wiring, migration, PostgreSQL integration, and E2E tests are outside the required completion scope unless the user expands it.
-- Any optional database-specific verification must use PostgreSQL, especially for `btree_gist`, exclusion constraints, `date` behavior, and row locks.
+- Any optional database-specific verification must use PostgreSQL, especially for `btree_gist`, exclusion constraints, and `date` behavior.
 - Relevant ESLint, Prettier, Nest build, and `git diff --check` verification must pass.
 
 No future implementation checkpoint may claim that the exclusion constraint or migration works in PostgreSQL unless it is actually executed against PostgreSQL.

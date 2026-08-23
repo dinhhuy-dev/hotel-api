@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/pricing/PLAN.md`
 
-Status: Milestone 1 planning is complete and awaiting review. Pricing implementation has not started.
+Status: Milestones 2 and 3 are implemented and awaiting review.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -22,38 +22,46 @@ Status: Milestone 1 planning is complete and awaiting review. Pricing implementa
 - [x] Create `docs/features/pricing/TASK.md`.
 - [x] Record the active Pricing paths in `PROGRESS.md`.
 - [x] Run focused documentation verification.
-- [ ] Review and approve Milestone 1 before implementation starts.
+- [x] Review and approve Milestone 1 before implementation starts.
 
 ## Milestone 2 - Persistence and Room Catalog Contract
 
-- [ ] Add the Room Catalog public query contract for bulk Room Type validation.
-- [ ] Export the intentional Room Catalog contract without exposing entities or repositories.
-- [ ] Add the Room Rate migration with checks, restrictive foreign key, and exclusion constraint.
-- [ ] Add the `btree_gist` extension step required by the exclusion constraint.
-- [ ] Add the Room Rate TypeORM entity without importing a Room Catalog entity.
-- [ ] Add the Room Rate repository port and TypeORM adapter.
-- [ ] Map database overlap violations to the stable Pricing error contract.
-- [ ] Add an injectable hotel-local clock for `Asia/Ho_Chi_Minh` business dates.
-- [ ] Add the initial `PricingModule` wiring.
-- [ ] Add required service unit coverage for the Room Catalog contract and persistence-facing rules.
-- [ ] Run focused verification.
+- [x] Add the Room Catalog public query contract for single Room Type validation.
+- [x] Export the intentional Room Catalog contract without exposing entities or repositories.
+- [x] Add the Room Rate migration with checks, restrictive foreign key, and exclusion constraint.
+- [x] Add the `btree_gist` extension step required by the exclusion constraint.
+- [x] Add the Room Rate TypeORM entity without importing a Room Catalog entity.
+- [x] Add the Room Rate repository port and TypeORM adapter.
+- [x] Keep database overlap violations outside the application error mapping.
+- [x] Add an injectable hotel-local clock for `Asia/Ho_Chi_Minh` business dates.
+- [x] Add the initial `PricingModule` wiring.
+- [x] Add required service unit coverage for the Room Catalog contract and persistence-facing rules.
+- [x] Run focused verification.
 - [ ] Review and approve Milestone 2.
 
 ## Milestone 3 - Room Rate Management
 
-- [ ] Add Room Rate create, update, query, and response DTOs.
-- [ ] Implement active Room Type validation for create and update.
-- [ ] Implement future-only create, update, and hard-delete rules.
-- [ ] Implement list and detail reads for past, current, and future rates.
-- [ ] Return every complete stored Room Rate that overlaps `[fromDate, toDate)`.
-- [ ] Apply pagination totals after the management overlap filter.
-- [ ] Implement overlap pre-checks and transactional target-row locking.
-- [ ] Add `ManagementRoomRateController` with Administrator and Hotel Manager RBAC.
-- [ ] Document management endpoints and response envelopes in Swagger.
-- [ ] Add Room Rate service unit tests.
-- [ ] Add management controller unit tests.
-- [ ] Run focused verification.
+- [x] Add Room Rate create, update, query, and response DTOs.
+- [x] Implement active Room Type validation for create and update.
+- [x] Implement future-only create, update, and hard-delete rules.
+- [x] Implement list and detail reads for past, current, and future rates.
+- [x] Return every complete stored Room Rate that overlaps `[fromDate, toDate)`.
+- [x] Apply pagination totals after the management overlap filter.
+- [x] Implement overlap pre-checks without redundant application transactions or row locks.
+- [x] Add `ManagementRoomRateController` with Administrator and Hotel Manager RBAC.
+- [x] Document management endpoints and response envelopes in Swagger.
+- [x] Add Room Rate service unit tests.
+- [x] Add management controller unit tests.
+- [x] Run focused verification.
 - [ ] Review and approve Milestone 3.
+
+### Verification Evidence
+
+- On 2026-08-23, 3 focused controller and service suites passed with 51 tests after the DTO, service, and repository responsibility review.
+- Focused ESLint and Prettier checks passed for the changed TypeScript and tracking files.
+- The repository-local Nest build and `git diff --check` passed.
+- DTOs use built-in `class-validator` decorators for field rules, the service owns remaining business checks, and the repository only performs data operations and queries.
+- The Pricing migration and PostgreSQL exclusion constraint have not been executed against PostgreSQL.
 
 ## Milestone 4 - Internal Bulk Quote Contract
 
