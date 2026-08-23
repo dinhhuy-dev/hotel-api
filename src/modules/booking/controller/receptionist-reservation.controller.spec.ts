@@ -9,25 +9,49 @@ import { ReceptionistReservationController } from './receptionist-reservation.co
 
 const apiResponseMetadataKey = 'swagger/apiResponse';
 
-function createHandler(): object {
+function handler(name: keyof ReceptionistReservationController): object {
   const value: unknown = Object.getOwnPropertyDescriptor(
     ReceptionistReservationController.prototype,
-    'create',
+    name,
   )?.value;
 
   if (typeof value !== 'function') {
-    throw new Error('Expected create handler to exist.');
+    throw new Error(`Expected ${name} handler to exist.`);
   }
 
   return value;
 }
 
+function responseStatuses(name: keyof ReceptionistReservationController): number[] {
+  const responses: unknown = Reflect.getMetadata(apiResponseMetadataKey, handler(name));
+
+  if (typeof responses !== 'object' || responses === null || Array.isArray(responses)) {
+    throw new Error(`Expected ${name} handler to document API responses.`);
+  }
+
+  return Object.keys(responses).map(Number).sort();
+}
+
 describe('ReceptionistReservationController', () => {
   let controller: ReceptionistReservationController;
-  let service: jest.Mocked<Pick<ReservationCommandService, 'createForReceptionist'>>;
+  let service: jest.Mocked<
+    Pick<
+      ReservationCommandService,
+      | 'createForReceptionist'
+      | 'requestPaymentForReceptionist'
+      | 'cancelForReceptionist'
+      | 'markNoShow'
+    >
+  >;
+  const reservation = {} as ReservationResponseDto;
 
   beforeEach(() => {
-    service = { createForReceptionist: jest.fn() };
+    service = {
+      createForReceptionist: jest.fn(),
+      requestPaymentForReceptionist: jest.fn(),
+      cancelForReceptionist: jest.fn(),
+      markNoShow: jest.fn(),
+    };
     controller = new ReceptionistReservationController(
       service as unknown as ReservationCommandService,
     );
@@ -40,26 +64,49 @@ describe('ReceptionistReservationController', () => {
     expect(Reflect.getMetadata(PATH_METADATA, ReceptionistReservationController)).toBe(
       'v1/booking/receptionist/reservations',
     );
-    expect(Reflect.getMetadata(PATH_METADATA, createHandler())).toBe('/');
-    expect(Reflect.getMetadata(METHOD_METADATA, createHandler())).toBe(RequestMethod.POST);
+    expect(Reflect.getMetadata(PATH_METADATA, handler('create'))).toBe('/');
+    expect(Reflect.getMetadata(METHOD_METADATA, handler('create'))).toBe(RequestMethod.POST);
+    expect(Reflect.getMetadata(PATH_METADATA, handler('pay'))).toBe(':id/pay');
+    expect(Reflect.getMetadata(METHOD_METADATA, handler('pay'))).toBe(RequestMethod.POST);
+    expect(Reflect.getMetadata(PATH_METADATA, handler('cancel'))).toBe(':id/cancel');
+    expect(Reflect.getMetadata(METHOD_METADATA, handler('cancel'))).toBe(RequestMethod.POST);
+    expect(Reflect.getMetadata(PATH_METADATA, handler('markNoShow'))).toBe(':id/no-show');
+    expect(Reflect.getMetadata(METHOD_METADATA, handler('markNoShow'))).toBe(RequestMethod.POST);
   });
 
-  it('documents creation responses', () => {
-    const responses: unknown = Reflect.getMetadata(apiResponseMetadataKey, createHandler());
-
-    if (typeof responses !== 'object' || responses === null || Array.isArray(responses)) {
-      throw new Error('Expected create handler to document API responses.');
-    }
-
-    expect(Object.keys(responses).map(Number).sort()).toEqual([201, 400, 409]);
+  it('documents operation-specific responses', () => {
+    expect(responseStatuses('create')).toEqual([201, 400, 409]);
+    expect(responseStatuses('pay')).toEqual([202, 400, 404, 409]);
+    expect(responseStatuses('cancel')).toEqual([200, 400, 404, 409]);
+    expect(responseStatuses('markNoShow')).toEqual([200, 400, 404, 409]);
   });
 
   it('forwards the idempotency key and supplied Customer UUID', async () => {
     const dto = { customerId: 'customer-id' } as ReceptionistCreateReservationDto;
-    const reservation = {} as ReservationResponseDto;
     service.createForReceptionist.mockResolvedValue(reservation);
 
     await expect(controller.create('request-id', dto)).resolves.toBe(reservation);
     expect(service.createForReceptionist).toHaveBeenCalledWith('request-id', dto);
+  });
+
+  it('forwards payment initiation', async () => {
+    service.requestPaymentForReceptionist.mockResolvedValue(reservation);
+
+    await expect(controller.pay('reservation-id')).resolves.toBe(reservation);
+    expect(service.requestPaymentForReceptionist).toHaveBeenCalledWith('reservation-id');
+  });
+
+  it('forwards cancellation', async () => {
+    service.cancelForReceptionist.mockResolvedValue(reservation);
+
+    await expect(controller.cancel('reservation-id')).resolves.toBe(reservation);
+    expect(service.cancelForReceptionist).toHaveBeenCalledWith('reservation-id');
+  });
+
+  it('forwards no-show', async () => {
+    service.markNoShow.mockResolvedValue(reservation);
+
+    await expect(controller.markNoShow('reservation-id')).resolves.toBe(reservation);
+    expect(service.markNoShow).toHaveBeenCalledWith('reservation-id');
   });
 });

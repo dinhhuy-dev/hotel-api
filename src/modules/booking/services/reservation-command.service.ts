@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import {
   PRICING_QUOTE_SERVICE,
   type PricingQuoteContract,
@@ -20,6 +27,11 @@ import { PaymentStatus } from '../entities/enum/payment-status';
 import { ReservationStatus } from '../entities/enum/reservation-status';
 import { ReservationItem } from '../entities/reservation-item.entity';
 import { Reservation } from '../entities/reservation.entity';
+import type { PaymentRequestedEvent, RefundRequestedEvent } from '../events/booking-event';
+import {
+  BOOKING_EVENT_PUBLISHER,
+  type BookingEventPublisher,
+} from '../events/booking-event-publisher.contract';
 import type { BookingRepositoryPort } from '../repositories/ports/booking-repository.port';
 import { BOOKING_REPOSITORY } from '../repositories/ports/booking-repository.token';
 import { toReservationResponse } from './reservation-response.mapper';
@@ -38,6 +50,23 @@ interface CreationContext {
   readonly customerScoped: boolean;
   readonly idempotencyKey: string;
   readonly dto: CreationDto;
+}
+
+interface PaymentRequestSuccess {
+  readonly kind: 'success';
+  readonly response: ReservationResponseDto;
+  readonly event: PaymentRequestedEvent;
+}
+
+interface ExpiredPaymentRequest {
+  readonly kind: 'expired';
+}
+
+type PaymentRequestOutcome = PaymentRequestSuccess | ExpiredPaymentRequest;
+
+interface CancellationOutcome {
+  readonly response: ReservationResponseDto;
+  readonly event?: RefundRequestedEvent;
 }
 
 @Injectable()
@@ -61,6 +90,8 @@ export class ReservationCommandService {
     @Inject(PRICING_QUOTE_SERVICE)
     private readonly pricingQuoteService: Pick<PricingQuoteContract, 'quote'>,
     @Inject(BOOKING_CLOCK) private readonly clock: BookingClock,
+    @Inject(BOOKING_EVENT_PUBLISHER)
+    private readonly eventPublisher: BookingEventPublisher,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -84,6 +115,60 @@ export class ReservationCommandService {
     });
   }
 
+  requestPaymentForCustomer(customerId: string, id: string): Promise<ReservationResponseDto> {
+    return this.requestPayment(id, customerId);
+  }
+
+  requestPaymentForReceptionist(id: string): Promise<ReservationResponseDto> {
+    return this.requestPayment(id);
+  }
+
+  cancelForCustomer(customerId: string, id: string): Promise<ReservationResponseDto> {
+    return this.cancel(id, CancellationReason.CustomerRequest, customerId);
+  }
+
+  cancelForReceptionist(id: string): Promise<ReservationResponseDto> {
+    return this.cancel(id, CancellationReason.StaffRequest);
+  }
+
+  async markNoShow(id: string): Promise<ReservationResponseDto> {
+    const response = await this.dataSource.transaction<ReservationResponseDto | null>(
+      async (manager) => {
+        const reservation = await this.findLockedReservation(id, manager);
+
+        if (this.isExpiredPending(reservation, this.clock.now())) {
+          reservation.status = ReservationStatus.Cancelled;
+          reservation.cancellationReason = CancellationReason.PaymentTimeout;
+          await this.repository.saveReservation(reservation, manager);
+
+          return null;
+        }
+
+        if (reservation.status !== ReservationStatus.Confirmed) {
+          throw this.invalidStateException();
+        }
+
+        const today = this.clock.today();
+
+        if (today < reservation.checkInDate || today >= reservation.checkOutDate) {
+          throw this.invalidStateException();
+        }
+
+        reservation.status = ReservationStatus.Cancelled;
+        reservation.cancellationReason = CancellationReason.NoShow;
+        await this.repository.saveReservation(reservation, manager);
+
+        return this.toCurrentResponse(reservation, manager);
+      },
+    );
+
+    if (response === null) {
+      throw this.invalidStateException();
+    }
+
+    return response;
+  }
+
   private async create(context: CreationContext): Promise<ReservationResponseDto> {
     try {
       return await this.dataSource.transaction((manager) =>
@@ -96,6 +181,115 @@ export class ReservationCommandService {
 
       return this.resolveConcurrentReplay(context, error);
     }
+  }
+
+  private async requestPayment(id: string, customerId?: string): Promise<ReservationResponseDto> {
+    const outcome = await this.dataSource.transaction<PaymentRequestOutcome>(async (manager) => {
+      const reservation = await this.findLockedReservation(id, manager, customerId);
+
+      if (this.isExpiredPending(reservation, this.clock.now())) {
+        reservation.status = ReservationStatus.Cancelled;
+        reservation.cancellationReason = CancellationReason.PaymentTimeout;
+        await this.repository.saveReservation(reservation, manager);
+
+        return { kind: 'expired' };
+      }
+
+      if (reservation.status !== ReservationStatus.Pending) {
+        throw this.invalidStateException();
+      }
+
+      if (reservation.chargeRequestId === null) {
+        reservation.chargeRequestId = randomUUID();
+        await this.repository.saveReservation(reservation, manager);
+      }
+
+      const response = await this.toCurrentResponse(reservation, manager);
+
+      return {
+        kind: 'success',
+        response,
+        event: {
+          type: 'PaymentRequested',
+          reservationId: reservation.id,
+          requestId: reservation.chargeRequestId,
+          amount: reservation.totalAmount,
+        },
+      };
+    });
+
+    if (outcome.kind === 'expired') {
+      throw new ConflictException({
+        message: 'The pending Reservation has expired.',
+        error: 'RESERVATION_EXPIRED',
+      });
+    }
+
+    this.eventPublisher.publish(outcome.event);
+
+    return outcome.response;
+  }
+
+  private async cancel(
+    id: string,
+    reason: CancellationReason,
+    customerId?: string,
+  ): Promise<ReservationResponseDto> {
+    const outcome = await this.dataSource.transaction<CancellationOutcome>(async (manager) => {
+      const reservation = await this.findLockedReservation(id, manager, customerId);
+      let changed = false;
+      let shouldCreateRefund = false;
+
+      if (this.isExpiredPending(reservation, this.clock.now())) {
+        reservation.status = ReservationStatus.Cancelled;
+        reservation.cancellationReason = CancellationReason.PaymentTimeout;
+        changed = true;
+      } else if (reservation.status === ReservationStatus.Cancelled) {
+        // Repeated cancellation is an idempotent success.
+      } else if (
+        reservation.status === ReservationStatus.Pending ||
+        reservation.status === ReservationStatus.Confirmed
+      ) {
+        reservation.status = ReservationStatus.Cancelled;
+        reservation.cancellationReason = reason;
+        changed = true;
+        shouldCreateRefund = true;
+      } else {
+        throw this.invalidStateException();
+      }
+
+      if (
+        shouldCreateRefund &&
+        reservation.paymentStatus === PaymentStatus.Paid &&
+        reservation.refundRequestId === null
+      ) {
+        reservation.refundRequestId = randomUUID();
+        changed = true;
+      }
+
+      if (changed) {
+        await this.repository.saveReservation(reservation, manager);
+      }
+
+      const response = await this.toCurrentResponse(reservation, manager);
+      const event =
+        reservation.refundRequestId !== null && reservation.refundReference === null
+          ? {
+              type: 'RefundRequested' as const,
+              reservationId: reservation.id,
+              requestId: reservation.refundRequestId,
+              amount: reservation.totalAmount,
+            }
+          : undefined;
+
+      return { response, event };
+    });
+
+    if (outcome.event !== undefined) {
+      this.eventPublisher.publish(outcome.event);
+    }
+
+    return outcome.response;
   }
 
   private async createInTransaction(
@@ -370,6 +564,46 @@ export class ReservationCommandService {
         error: 'IDEMPOTENCY_KEY_REUSED',
       });
     }
+  }
+
+  private async findLockedReservation(
+    id: string,
+    manager: EntityManager,
+    customerId?: string,
+  ): Promise<Reservation> {
+    const reservation = await this.repository.findAndLockById(id, manager);
+
+    if (
+      reservation === null ||
+      (customerId !== undefined && reservation.customerId !== customerId)
+    ) {
+      throw new NotFoundException({
+        message: 'Reservation not found.',
+        error: 'RESERVATION_NOT_FOUND',
+      });
+    }
+
+    return reservation;
+  }
+
+  private async toCurrentResponse(
+    reservation: Reservation,
+    manager: EntityManager,
+  ): Promise<ReservationResponseDto> {
+    const current = await this.repository.findWithDetailsById(reservation.id, manager);
+
+    if (current === null) {
+      return toReservationResponse(reservation);
+    }
+
+    return toReservationResponse(current);
+  }
+
+  private invalidStateException(): ConflictException {
+    return new ConflictException({
+      message: 'The Reservation state does not allow this action.',
+      error: 'INVALID_RESERVATION_STATE',
+    });
   }
 
   private isExpiredPending(reservation: Reservation, now: Date): boolean {

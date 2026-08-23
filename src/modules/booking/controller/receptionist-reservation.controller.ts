@@ -1,12 +1,13 @@
-import { Body, Controller, ParseUUIDPipe, Post } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiHeader,
+  ApiNotFoundResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -59,5 +60,75 @@ export class ReceptionistReservationController {
     @Body() dto: ReceptionistCreateReservationDto,
   ): Promise<ReservationResponseDto> {
     return this.service.createForReceptionist(idempotencyKey, dto);
+  }
+
+  @Post(':id/pay')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Request payment for a reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    status: HttpStatus.ACCEPTED,
+    description: 'Payment requested successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier is invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation cannot be paid in its current state.',
+  })
+  pay(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto> {
+    return this.service.requestPaymentForReceptionist(id);
+  }
+
+  @Post(':id/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel a reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    description: 'Reservation cancelled or replayed successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier is invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation cannot be cancelled in its current state.',
+  })
+  cancel(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto> {
+    return this.service.cancelForReceptionist(id);
+  }
+
+  @Post(':id/no-show')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark a reservation as no-show' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    description: 'Reservation marked as no-show successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier is invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation cannot be marked as no-show in its current state or stay window.',
+  })
+  markNoShow(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto> {
+    return this.service.markNoShow(id);
   }
 }

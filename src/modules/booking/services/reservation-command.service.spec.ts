@@ -14,6 +14,8 @@ import { PaymentStatus } from '../entities/enum/payment-status';
 import { ReservationStatus } from '../entities/enum/reservation-status';
 import { ReservationItem } from '../entities/reservation-item.entity';
 import { Reservation } from '../entities/reservation.entity';
+import type { BookingEvent } from '../events/booking-event';
+import type { BookingEventPublisher } from '../events/booking-event-publisher.contract';
 import type { BookingRepositoryPort } from '../repositories/ports/booking-repository.port';
 import { ReservationCommandService } from './reservation-command.service';
 
@@ -25,6 +27,8 @@ const RESERVATION_ID = '33333333-3333-4333-8333-333333333333';
 const IDEMPOTENCY_KEY = '44444444-4444-4444-8444-444444444444';
 const NOW = new Date('2026-08-24T01:00:00.000Z');
 const CREATED_AT = new Date('2026-08-24T01:00:00.000Z');
+const CHARGE_REQUEST_ID = '77777777-7777-4777-8777-777777777777';
+const REFUND_REQUEST_ID = '88888888-8888-4888-8888-888888888888';
 
 type CommandRepository = Pick<
   BookingRepositoryPort,
@@ -105,12 +109,21 @@ function createReservation(overrides: Partial<Reservation> = {}): Reservation {
   });
 }
 
+function expectPublished(publisher: jest.Mocked<BookingEventPublisher>, event: BookingEvent): void {
+  expect(publisher.publish.mock.calls).toContainEqual([event]);
+}
+
+function expectNothingPublished(publisher: jest.Mocked<BookingEventPublisher>): void {
+  expect(publisher.publish.mock.calls).toHaveLength(0);
+}
+
 describe('ReservationCommandService', () => {
   let service: ReservationCommandService;
   let roomCatalogService: jest.Mocked<Pick<BookingRoomCatalogService, 'findAvailabilityRoomTypes'>>;
   let repository: jest.Mocked<CommandRepository>;
   let pricingQuoteService: jest.Mocked<Pick<PricingQuoteContract, 'quote'>>;
   let clock: jest.Mocked<BookingClock>;
+  let eventPublisher: jest.Mocked<BookingEventPublisher>;
   let manager: EntityManager;
   let rootManager: EntityManager;
   let transaction: jest.Mock;
@@ -159,6 +172,9 @@ describe('ReservationCommandService', () => {
       now: jest.fn().mockReturnValue(NOW),
       today: jest.fn().mockReturnValue('2026-08-24'),
     };
+    eventPublisher = {
+      publish: jest.fn(),
+    };
     transaction = jest
       .fn()
       .mockImplementation((work: (transactionManager: EntityManager) => unknown) =>
@@ -169,6 +185,7 @@ describe('ReservationCommandService', () => {
       repository,
       pricingQuoteService,
       clock,
+      eventPublisher,
       { manager: rootManager, transaction } as unknown as DataSource,
     );
   });
@@ -492,5 +509,327 @@ describe('ReservationCommandService', () => {
 
     expect(result.id).toBe(RESERVATION_ID);
     expect(repository.findByIdempotencyKey).toHaveBeenCalledWith(IDEMPOTENCY_KEY, rootManager);
+  });
+
+  it('requests Customer payment under a row lock and publishes only after commit', async () => {
+    const reservation = createReservation();
+    let transactionCommitted = false;
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockImplementation(() => Promise.resolve(reservation));
+    transaction.mockImplementationOnce(
+      async (work: (transactionManager: EntityManager) => Promise<unknown>) => {
+        const result = await work(manager);
+        transactionCommitted = true;
+        return result;
+      },
+    );
+    eventPublisher.publish.mockImplementation(() => {
+      expect(transactionCommitted).toBe(true);
+    });
+
+    const result = await service.requestPaymentForCustomer(ACCOUNT_ID, RESERVATION_ID);
+
+    expect(repository.findAndLockById).toHaveBeenCalledWith(RESERVATION_ID, manager);
+    expect(repository.saveReservation).toHaveBeenCalledWith(reservation, manager);
+    expect(reservation.chargeRequestId).toEqual(expect.any(String));
+    expectPublished(eventPublisher, {
+      type: 'PaymentRequested',
+      reservationId: RESERVATION_ID,
+      requestId: reservation.chargeRequestId,
+      amount: 300000,
+    });
+    expect(result).toMatchObject({
+      id: RESERVATION_ID,
+      status: ReservationStatus.Pending,
+      paymentStatus: PaymentStatus.Unpaid,
+    });
+    expect(result).not.toHaveProperty('chargeRequestId');
+  });
+
+  it('reuses and republishes the same charge request for Receptionist payment', async () => {
+    const reservation = createReservation({ chargeRequestId: CHARGE_REQUEST_ID });
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    await service.requestPaymentForReceptionist(RESERVATION_ID);
+
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+    expectPublished(eventPublisher, {
+      type: 'PaymentRequested',
+      reservationId: RESERVATION_ID,
+      requestId: CHARGE_REQUEST_ID,
+      amount: 300000,
+    });
+  });
+
+  it('persists payment timeout before rejecting an expired payment request', async () => {
+    const reservation = createReservation({ expiresAt: new Date(NOW) });
+    let transactionCommitted = false;
+    repository.findAndLockById.mockResolvedValue(reservation);
+    transaction.mockImplementationOnce(
+      async (work: (transactionManager: EntityManager) => Promise<unknown>) => {
+        const result = await work(manager);
+        transactionCommitted = true;
+        return result;
+      },
+    );
+
+    await expect(
+      service.requestPaymentForCustomer(ACCOUNT_ID, RESERVATION_ID),
+    ).rejects.toMatchObject({ response: { error: 'RESERVATION_EXPIRED' } });
+
+    expect(transactionCommitted).toBe(true);
+    expect(reservation).toMatchObject({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.PaymentTimeout,
+    });
+    expect(repository.saveReservation).toHaveBeenCalledWith(reservation, manager);
+    expectNothingPublished(eventPublisher);
+  });
+
+  it('hides Customer payment ownership failures as not found', async () => {
+    const reservation = createReservation({ customerId: OTHER_CUSTOMER_ID });
+    repository.findAndLockById.mockResolvedValue(reservation);
+
+    await expect(
+      service.requestPaymentForCustomer(ACCOUNT_ID, RESERVATION_ID),
+    ).rejects.toMatchObject({ response: { error: 'RESERVATION_NOT_FOUND' } });
+
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+    expectNothingPublished(eventPublisher);
+  });
+
+  it.each([ReservationStatus.Confirmed, ReservationStatus.Cancelled, ReservationStatus.CheckedIn])(
+    'rejects payment initiation from %s',
+    async (status) => {
+      repository.findAndLockById.mockResolvedValue(createReservation({ status }));
+
+      await expect(service.requestPaymentForReceptionist(RESERVATION_ID)).rejects.toMatchObject({
+        response: { error: 'INVALID_RESERVATION_STATE' },
+      });
+      expectNothingPublished(eventPublisher);
+    },
+  );
+
+  it('cancels an owned pending Reservation with the Customer reason', async () => {
+    const reservation = createReservation();
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    const result = await service.cancelForCustomer(ACCOUNT_ID, RESERVATION_ID);
+
+    expect(reservation).toMatchObject({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.CustomerRequest,
+    });
+    expect(repository.saveReservation).toHaveBeenCalledWith(reservation, manager);
+    expectNothingPublished(eventPublisher);
+    expect(result.status).toBe(ReservationStatus.Cancelled);
+  });
+
+  it('cancels a paid confirmed Reservation and publishes one refund request after commit', async () => {
+    const reservation = createReservation({
+      status: ReservationStatus.Confirmed,
+      paymentStatus: PaymentStatus.Paid,
+    });
+    let transactionCommitted = false;
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+    transaction.mockImplementationOnce(
+      async (work: (transactionManager: EntityManager) => Promise<unknown>) => {
+        const result = await work(manager);
+        transactionCommitted = true;
+        return result;
+      },
+    );
+    eventPublisher.publish.mockImplementation(() => {
+      expect(transactionCommitted).toBe(true);
+    });
+
+    await service.cancelForReceptionist(RESERVATION_ID);
+
+    expect(reservation).toMatchObject({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.StaffRequest,
+    });
+    expect(reservation.refundRequestId).toEqual(expect.any(String));
+    expectPublished(eventPublisher, {
+      type: 'RefundRequested',
+      reservationId: RESERVATION_ID,
+      requestId: reservation.refundRequestId,
+      amount: 300000,
+    });
+  });
+
+  it('repeats cancellation idempotently and republishes the pending refund request', async () => {
+    const reservation = createReservation({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.StaffRequest,
+      paymentStatus: PaymentStatus.Paid,
+      refundRequestId: REFUND_REQUEST_ID,
+    });
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    const result = await service.cancelForCustomer(ACCOUNT_ID, RESERVATION_ID);
+
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+    expect(reservation.cancellationReason).toBe(CancellationReason.StaffRequest);
+    expectPublished(eventPublisher, {
+      type: 'RefundRequested',
+      reservationId: RESERVATION_ID,
+      requestId: REFUND_REQUEST_ID,
+      amount: 300000,
+    });
+    expect(result.cancellationReason).toBe(CancellationReason.StaffRequest);
+  });
+
+  it('does not republish a completed refund for repeated cancellation', async () => {
+    const reservation = createReservation({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.CustomerRequest,
+      paymentStatus: PaymentStatus.Refunded,
+      refundRequestId: REFUND_REQUEST_ID,
+      refundReference: 'refund-reference',
+    });
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    await service.cancelForCustomer(ACCOUNT_ID, RESERVATION_ID);
+
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+    expectNothingPublished(eventPublisher);
+  });
+
+  it('lazily expires a pending hold during cancellation', async () => {
+    const reservation = createReservation({ expiresAt: new Date(NOW) });
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    const result = await service.cancelForCustomer(ACCOUNT_ID, RESERVATION_ID);
+
+    expect(reservation.cancellationReason).toBe(CancellationReason.PaymentTimeout);
+    expect(result.cancellationReason).toBe(CancellationReason.PaymentTimeout);
+  });
+
+  it('hides Customer cancellation ownership failures as not found', async () => {
+    repository.findAndLockById.mockResolvedValue(
+      createReservation({ customerId: OTHER_CUSTOMER_ID }),
+    );
+
+    await expect(service.cancelForCustomer(ACCOUNT_ID, RESERVATION_ID)).rejects.toMatchObject({
+      response: { error: 'RESERVATION_NOT_FOUND' },
+    });
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+  });
+
+  it.each([ReservationStatus.CheckedIn, ReservationStatus.CheckedOut])(
+    'rejects cancellation from %s',
+    async (status) => {
+      repository.findAndLockById.mockResolvedValue(createReservation({ status }));
+
+      await expect(service.cancelForReceptionist(RESERVATION_ID)).rejects.toMatchObject({
+        response: { error: 'INVALID_RESERVATION_STATE' },
+      });
+    },
+  );
+
+  it('marks a paid confirmed Reservation as no-show without requesting a refund', async () => {
+    const reservation = createReservation({
+      status: ReservationStatus.Confirmed,
+      paymentStatus: PaymentStatus.Paid,
+      checkInDate: '2026-08-24',
+      checkOutDate: '2026-08-25',
+    });
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    const result = await service.markNoShow(RESERVATION_ID);
+
+    expect(reservation).toMatchObject({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.NoShow,
+      refundRequestId: null,
+    });
+    expect(repository.saveReservation).toHaveBeenCalledWith(reservation, manager);
+    expectNothingPublished(eventPublisher);
+    expect(result.cancellationReason).toBe(CancellationReason.NoShow);
+  });
+
+  it('does not turn repeated cancellation after no-show into a refund', async () => {
+    const reservation = createReservation({
+      status: ReservationStatus.Confirmed,
+      paymentStatus: PaymentStatus.Paid,
+      checkInDate: '2026-08-24',
+      checkOutDate: '2026-08-25',
+    });
+    repository.findAndLockById.mockResolvedValue(reservation);
+    repository.findWithDetailsById.mockResolvedValue(reservation);
+
+    await service.markNoShow(RESERVATION_ID);
+    repository.saveReservation.mockClear();
+    eventPublisher.publish.mockClear();
+
+    const result = await service.cancelForReceptionist(RESERVATION_ID);
+
+    expect(reservation).toMatchObject({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.NoShow,
+      refundRequestId: null,
+    });
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+    expectNothingPublished(eventPublisher);
+    expect(result.cancellationReason).toBe(CancellationReason.NoShow);
+  });
+
+  it.each([
+    ['before check-in', '2026-08-25', '2026-08-26'],
+    ['on check-out', '2026-08-23', '2026-08-24'],
+  ])('rejects no-show %s', async (_case, checkInDate, checkOutDate) => {
+    repository.findAndLockById.mockResolvedValue(
+      createReservation({
+        status: ReservationStatus.Confirmed,
+        checkInDate,
+        checkOutDate,
+      }),
+    );
+
+    await expect(service.markNoShow(RESERVATION_ID)).rejects.toMatchObject({
+      response: { error: 'INVALID_RESERVATION_STATE' },
+    });
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+  });
+
+  it('rejects no-show unless the Reservation is confirmed', async () => {
+    repository.findAndLockById.mockResolvedValue(createReservation());
+
+    await expect(service.markNoShow(RESERVATION_ID)).rejects.toMatchObject({
+      response: { error: 'INVALID_RESERVATION_STATE' },
+    });
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+  });
+
+  it('persists lazy expiration before rejecting no-show for an expired pending hold', async () => {
+    const reservation = createReservation({ expiresAt: new Date(NOW) });
+    let transactionCommitted = false;
+    repository.findAndLockById.mockResolvedValue(reservation);
+    transaction.mockImplementationOnce(
+      async (work: (transactionManager: EntityManager) => Promise<unknown>) => {
+        const result = await work(manager);
+        transactionCommitted = true;
+        return result;
+      },
+    );
+
+    await expect(service.markNoShow(RESERVATION_ID)).rejects.toMatchObject({
+      response: { error: 'INVALID_RESERVATION_STATE' },
+    });
+
+    expect(transactionCommitted).toBe(true);
+    expect(reservation).toMatchObject({
+      status: ReservationStatus.Cancelled,
+      cancellationReason: CancellationReason.PaymentTimeout,
+    });
+    expect(repository.saveReservation).toHaveBeenCalledWith(reservation, manager);
   });
 });

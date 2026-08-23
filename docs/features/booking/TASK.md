@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: Milestones 1 through 4 are approved. Milestone 5 payment, cancellation, and no-show is next.
+Status: Milestones 1 through 5 are approved. Milestone 6 check-in and check-out is next.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -106,17 +106,25 @@ Status: Milestones 1 through 4 are approved. Milestone 5 payment, cancellation, 
 
 ## Milestone 5 - Payment, Cancellation, and No-Show
 
-- [ ] Implement `PaymentRequested` and `PaymentSucceeded` handling.
-- [ ] Implement `RefundRequested` and `RefundSucceeded` handling.
-- [ ] Reuse request IDs for repeated payment and refund delivery.
-- [ ] Confirm only matching, unexpired pending Reservations.
-- [ ] Refund successful late payments without restoring inventory.
-- [ ] Implement Customer and Receptionist cancellation.
-- [ ] Implement no-show without refund.
-- [ ] Add payment, cancellation, and no-show controller coverage.
-- [ ] Add Payment Event and Reservation Command service unit tests.
-- [ ] Run focused verification.
-- [ ] Review and approve Milestone 5.
+- [x] Implement `PaymentRequested` and `PaymentSucceeded` handling.
+- [x] Implement `RefundRequested` and `RefundSucceeded` handling.
+- [x] Reuse request IDs for repeated payment and refund delivery.
+- [x] Confirm only matching, unexpired pending Reservations.
+- [x] Refund successful late payments without restoring inventory.
+- [x] Implement Customer and Receptionist cancellation.
+- [x] Implement no-show without refund.
+- [x] Add payment, cancellation, and no-show controller coverage.
+- [x] Add Payment Event and Reservation Command service unit tests.
+- [x] Run focused verification.
+- [x] Review and approve Milestone 5.
+
+### Verification Evidence
+
+- On 2026-08-24, the four Milestone 5 controller and service suites passed with 68 tests.
+- All current Booking controller and service suites passed with 8 suites and 98 tests.
+- Focused ESLint and Prettier checks, the repository-local Nest build, and `git diff --check` passed.
+- Primary and independent reviews confirmed ownership, lifecycle transitions, lazy expiration, event matching and idempotency, transaction manager propagation, row locks, post-commit publication, response safety, RBAC, routes, and Swagger metadata.
+- Independent review found and verified the fix for repeated cancellation after no-show, which now remains refund-free.
 
 ## Milestone 6 - Check-In and Check-Out
 

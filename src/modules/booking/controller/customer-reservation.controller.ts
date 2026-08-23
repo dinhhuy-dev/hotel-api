@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -110,5 +119,58 @@ export class CustomerReservationController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ReservationResponseDto> {
     return this.queryService.findOneForCustomer(currentUser.accountId, id);
+  }
+
+  @Post(':id/pay')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Request payment for an owned reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    status: HttpStatus.ACCEPTED,
+    description: 'Payment requested successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier is invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist or is not owned by the Customer.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation cannot be paid in its current state.',
+  })
+  pay(
+    @CurrentUser() currentUser: AuthenticatedUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ReservationResponseDto> {
+    return this.commandService.requestPaymentForCustomer(currentUser.accountId, id);
+  }
+
+  @Post(':id/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel an owned reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    description: 'Reservation cancelled or replayed successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier is invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist or is not owned by the Customer.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation cannot be cancelled in its current state.',
+  })
+  cancel(
+    @CurrentUser() currentUser: AuthenticatedUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ReservationResponseDto> {
+    return this.commandService.cancelForCustomer(currentUser.accountId, id);
   }
 }

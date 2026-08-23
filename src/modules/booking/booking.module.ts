@@ -17,6 +17,7 @@ import { NoopHousekeepingEventHandler } from './events/noop-housekeeping-event.h
 import { BOOKING_REPOSITORY } from './repositories/ports/booking-repository.token';
 import { TypeOrmBookingRepository } from './repositories/typeorm/typeorm-booking.repository';
 import { AvailabilityService } from './services/availability.service';
+import { PaymentEventService } from './services/payment-event.service';
 import { ReservationCommandService } from './services/reservation-command.service';
 import { ReservationQueryService } from './services/reservation-query.service';
 
@@ -34,6 +35,7 @@ import { ReservationQueryService } from './services/reservation-query.service';
   ],
   providers: [
     AvailabilityService,
+    PaymentEventService,
     ReservationCommandService,
     ReservationQueryService,
     TypeOrmBookingRepository,

@@ -38,7 +38,12 @@ function responseStatuses(name: keyof CustomerReservationController): number[] {
 
 describe('CustomerReservationController', () => {
   let controller: CustomerReservationController;
-  let commandService: jest.Mocked<Pick<ReservationCommandService, 'createForCustomer'>>;
+  let commandService: jest.Mocked<
+    Pick<
+      ReservationCommandService,
+      'createForCustomer' | 'requestPaymentForCustomer' | 'cancelForCustomer'
+    >
+  >;
   let queryService: jest.Mocked<
     Pick<ReservationQueryService, 'listForCustomer' | 'findOneForCustomer'>
   >;
@@ -49,7 +54,11 @@ describe('CustomerReservationController', () => {
   const reservation = {} as ReservationResponseDto;
 
   beforeEach(() => {
-    commandService = { createForCustomer: jest.fn() };
+    commandService = {
+      createForCustomer: jest.fn(),
+      requestPaymentForCustomer: jest.fn(),
+      cancelForCustomer: jest.fn(),
+    };
     queryService = { listForCustomer: jest.fn(), findOneForCustomer: jest.fn() };
     controller = new CustomerReservationController(
       commandService as unknown as ReservationCommandService,
@@ -70,12 +79,18 @@ describe('CustomerReservationController', () => {
     expect(Reflect.getMetadata(PATH_METADATA, handler('list'))).toBe('/');
     expect(Reflect.getMetadata(METHOD_METADATA, handler('findOne'))).toBe(RequestMethod.GET);
     expect(Reflect.getMetadata(PATH_METADATA, handler('findOne'))).toBe(':id');
+    expect(Reflect.getMetadata(METHOD_METADATA, handler('pay'))).toBe(RequestMethod.POST);
+    expect(Reflect.getMetadata(PATH_METADATA, handler('pay'))).toBe(':id/pay');
+    expect(Reflect.getMetadata(METHOD_METADATA, handler('cancel'))).toBe(RequestMethod.POST);
+    expect(Reflect.getMetadata(PATH_METADATA, handler('cancel'))).toBe(':id/cancel');
   });
 
   it('documents operation-specific responses', () => {
     expect(responseStatuses('create')).toEqual([201, 400, 409]);
     expect(responseStatuses('list')).toEqual([200, 400]);
     expect(responseStatuses('findOne')).toEqual([200, 400, 404]);
+    expect(responseStatuses('pay')).toEqual([202, 400, 404, 409]);
+    expect(responseStatuses('cancel')).toEqual([200, 400, 404, 409]);
   });
 
   it('forwards the authenticated account and idempotency key when creating', async () => {
@@ -110,6 +125,26 @@ describe('CustomerReservationController', () => {
 
     await expect(controller.findOne(currentUser, 'reservation-id')).resolves.toBe(reservation);
     expect(queryService.findOneForCustomer).toHaveBeenCalledWith(
+      currentUser.accountId,
+      'reservation-id',
+    );
+  });
+
+  it('forwards ownership when requesting payment', async () => {
+    commandService.requestPaymentForCustomer.mockResolvedValue(reservation);
+
+    await expect(controller.pay(currentUser, 'reservation-id')).resolves.toBe(reservation);
+    expect(commandService.requestPaymentForCustomer).toHaveBeenCalledWith(
+      currentUser.accountId,
+      'reservation-id',
+    );
+  });
+
+  it('forwards ownership when cancelling', async () => {
+    commandService.cancelForCustomer.mockResolvedValue(reservation);
+
+    await expect(controller.cancel(currentUser, 'reservation-id')).resolves.toBe(reservation);
+    expect(commandService.cancelForCustomer).toHaveBeenCalledWith(
       currentUser.accountId,
       'reservation-id',
     );
