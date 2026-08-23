@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: Milestones 1 through 5 are approved. Milestone 6 check-in and check-out is next.
+Status: Milestones 1 through 6 are approved. Milestone 7 full verification and documentation review is next.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -128,17 +128,25 @@ Status: Milestones 1 through 5 are approved. Milestone 6 check-in and check-out 
 
 ## Milestone 6 - Check-In and Check-Out
 
-- [ ] Add check-in request validation for distinct Room IDs.
-- [ ] Lock the Reservation and sorted physical Room IDs.
-- [ ] Validate paid state, date window, Room Type quantities, `READY` status, and active assignments.
-- [ ] Write all Room Assignments and check in atomically.
-- [ ] Release all active assignments during check-out.
-- [ ] Mark every assigned Room `DIRTY` in the check-out transaction.
-- [ ] Publish `RoomsCheckedOut` after commit.
-- [ ] Add check-in and check-out controller coverage.
-- [ ] Add Check-In and Check-Out service unit tests.
-- [ ] Run focused verification.
-- [ ] Review and approve Milestone 6.
+- [x] Add check-in request validation for distinct Room IDs.
+- [x] Lock the Reservation and sorted physical Room IDs.
+- [x] Validate paid state, date window, Room Type quantities, `READY` status, and active assignments.
+- [x] Write all Room Assignments and check in atomically.
+- [x] Release all active assignments during check-out.
+- [x] Mark every assigned Room `DIRTY` in the check-out transaction.
+- [x] Publish `RoomsCheckedOut` after commit.
+- [x] Add check-in and check-out controller coverage.
+- [x] Add Check-In and Check-Out service unit tests.
+- [x] Run focused verification.
+- [x] Review and approve Milestone 6.
+
+### Verification Evidence
+
+- On 2026-08-24, the Receptionist controller, Check-In service, and Check-Out service suites passed with 3 suites and 36 tests.
+- All current Booking controller and service suites passed with 10 suites and 128 tests.
+- Focused ESLint and Prettier checks, the repository-local Nest build, and `git diff --check` passed.
+- Primary and independent reviews confirmed DTO validation responsibilities, lifecycle and payment checks, sorted lock order, exact Room Type assignment, active-assignment conflict handling, one transaction manager, atomic Room and assignment writes, response safety, one action timestamp, post-commit event publication, RBAC, routes, and Swagger metadata.
+- Independent review found and verified the fix that documents check-out assignment conflicts in Swagger.
 
 ## Milestone 7 - Full Verification and Documentation Review
 

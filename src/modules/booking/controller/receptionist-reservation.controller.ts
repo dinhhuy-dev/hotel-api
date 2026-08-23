@@ -15,8 +15,11 @@ import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.d
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ErrorResponseDto } from 'src/common/presentation/http/dto/error-response.dto';
 import { AccountRole } from 'src/modules/identity-access/domain/enums/account-role';
+import { CheckInDto } from '../dto/check-in.dto';
 import { ReceptionistCreateReservationDto } from '../dto/create-reservation.dto';
 import { ReservationResponseDto } from '../dto/reservation-response.dto';
+import { CheckInService } from '../services/check-in.service';
+import { CheckOutService } from '../services/check-out.service';
 import { ReservationCommandService } from '../services/reservation-command.service';
 import { IdempotencyKey } from './idempotency-key.decorator';
 
@@ -33,7 +36,11 @@ import { IdempotencyKey } from './idempotency-key.decorator';
 @Roles(AccountRole.RECEPTIONIST)
 @Controller('v1/booking/receptionist/reservations')
 export class ReceptionistReservationController {
-  constructor(private readonly service: ReservationCommandService) {}
+  constructor(
+    private readonly service: ReservationCommandService,
+    private readonly checkInService: CheckInService,
+    private readonly checkOutService: CheckOutService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a reservation for a Customer' })
@@ -130,5 +137,54 @@ export class ReceptionistReservationController {
   })
   markNoShow(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto> {
     return this.service.markNoShow(id);
+  }
+
+  @Post(':id/check-in')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Check in and assign physical Rooms' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    description: 'Reservation checked in successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier or Room identifiers are invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation state, stay window, payment, or Room assignment is invalid.',
+  })
+  checkIn(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CheckInDto,
+  ): Promise<ReservationResponseDto> {
+    return this.checkInService.checkIn(id, dto.roomIds);
+  }
+
+  @Post(':id/check-out')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Check out a reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation identifier.', format: 'uuid' })
+  @ApiSuccessResponse(ReservationResponseDto, {
+    description: 'Reservation checked out successfully.',
+  })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation identifier is invalid.',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation does not exist.',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'Reservation state or assigned Room data does not allow check-out.',
+  })
+  checkOut(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto> {
+    return this.checkOutService.checkOut(id);
   }
 }
