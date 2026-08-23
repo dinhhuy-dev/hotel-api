@@ -2,7 +2,7 @@
 
 ## Status
 
-Milestone 1 is approved. Milestones 2 and 3 are implemented and awaiting review. The internal bulk quote contract in Milestone 4 has not been implemented.
+All milestones are approved. Pricing is complete under the approved controller and service unit-test scope.
 
 This plan defines Pricing independently from the future Booking implementation. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 
@@ -69,7 +69,7 @@ Table: `room_rates`
 | `created_at`      | Timestamp with time zone                                |
 | `updated_at`      | Timestamp with time zone                                |
 
-Pricing stores `roomTypeId` as an identifier. Its TypeORM entity must not define a relationship to or import the Room Catalog entity. The migration may add a restrictive foreign key from `room_rates.room_type_id` to `room_types.id` because both modules share PostgreSQL.
+Pricing stores `roomTypeId` as an identifier. Its TypeORM entity defines an approved `ManyToOne` relationship to the Room Catalog `RoomType` entity for persistence mapping. The migration adds a restrictive foreign key from `room_rates.room_type_id` to `room_types.id` because both modules share PostgreSQL. Pricing services still use the Room Catalog public contract for Room Type business validation.
 
 Database checks enforce:
 
@@ -119,7 +119,7 @@ interface PricingRoomTypeRecord {
 }
 ```
 
-Pricing uses this contract for management validation. It must not import a Room Catalog controller, entity, repository, or internal service. The Room Catalog module exports only the intentional query token, implemented directly by its existing `RoomTypeService`.
+Pricing uses this contract for management validation. Pricing services must not import a Room Catalog controller, entity, repository, or internal service. The approved `RoomRate` persistence mapping may import the `RoomType` entity only to define its TypeORM relationship. The Room Catalog module exports only the intentional query token, implemented directly by its existing `RoomTypeService`.
 
 Unknown Room Type IDs produce `ROOM_TYPE_NOT_FOUND`. Inactive Room Types produce `INACTIVE_ROOM_TYPE` for create and update commands.
 
@@ -251,6 +251,7 @@ Expected codes include:
 - `ROOM_RATE_ALREADY_STARTED`
 - `INVALID_ROOM_RATE_RANGE`
 - `INVALID_ROOM_RATE_UPDATE`
+- `INVALID_QUOTE_REQUEST`
 - `INVALID_QUOTE_RANGE`
 
 Status mapping:
@@ -269,6 +270,7 @@ Pricing uses the standard NestJS layered structure:
 
 ```text
 src/modules/pricing/
+|-- contracts/
 |-- controller/
 |-- dto/
 |-- entities/

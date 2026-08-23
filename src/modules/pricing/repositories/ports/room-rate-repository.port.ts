@@ -17,6 +17,11 @@ export interface RoomRateRepositoryPort {
   save(roomRate: RoomRate): Promise<RoomRate>;
   findPage(options: RoomRateListOptions): Promise<RoomRateListResult>;
   findById(id: string): Promise<RoomRate | null>;
+  findOverlappingForRoomTypes(
+    roomTypeIds: readonly string[],
+    startDate: string,
+    endDate: string,
+  ): Promise<RoomRate[]>;
   hasOverlap(
     roomTypeId: string,
     startDate: string,

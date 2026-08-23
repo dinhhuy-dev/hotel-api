@@ -26,7 +26,10 @@ function createRoomRate(overrides: Partial<RoomRate> = {}): RoomRate {
 describe('RoomRateService', () => {
   let service: RoomRateService;
   let repository: jest.Mocked<
-    Pick<RoomRateRepositoryPort, 'save' | 'findPage' | 'findById' | 'hasOverlap' | 'remove'>
+    Pick<
+      RoomRateRepositoryPort,
+      'save' | 'findPage' | 'findById' | 'findOverlappingForRoomTypes' | 'hasOverlap' | 'remove'
+    >
   >;
   let roomTypeQuery: jest.Mocked<Pick<PricingRoomTypeQuery, 'findById'>>;
   let clock: jest.Mocked<Pick<HotelLocalClock, 'currentDate'>>;
@@ -36,6 +39,7 @@ describe('RoomRateService', () => {
       save: jest.fn(),
       findPage: jest.fn(),
       findById: jest.fn(),
+      findOverlappingForRoomTypes: jest.fn(),
       hasOverlap: jest.fn().mockResolvedValue(false),
       remove: jest.fn(),
     };

@@ -15,10 +15,18 @@ export class RoomRateResponseDto {
   })
   roomTypeId!: string;
 
-  @ApiProperty({ description: 'Inclusive first priced night.', example: '2026-09-01' })
+  @ApiProperty({
+    description: 'Inclusive first priced night.',
+    example: '2026-09-01',
+    format: 'date',
+  })
   startDate!: string;
 
-  @ApiProperty({ description: 'Exclusive end of the priced range.', example: '2026-09-05' })
+  @ApiProperty({
+    description: 'Exclusive end of the priced range.',
+    example: '2026-09-05',
+    format: 'date',
+  })
   endDate!: string;
 
   @ApiProperty({ description: 'VND price for one room night.', example: 1250000 })

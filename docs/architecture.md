@@ -147,7 +147,7 @@ Controllers remain thin. Business decisions belong in the service, except for `i
 
 ### Public Contracts
 
-A module may expose an intentional public service or contract through its NestJS module. Consumers must not import another module's controller, TypeORM entity, repository, or internal service.
+A module may expose an intentional public service or contract through its NestJS module. Business logic and service-to-service calls must not import another module's controller, TypeORM entity, repository, or internal service. An explicitly approved persistence entity may define a TypeORM relationship to another module's entity when the shared-database foreign key is part of the design.
 
 Public contracts use module-owned request and response types. They expose business operations instead of persistence details.
 
@@ -177,7 +177,7 @@ Keep required business consistency in synchronous operations. Use events only af
 The application uses one PostgreSQL database and TypeORM. Sharing a database does not remove module ownership.
 
 - Each module owns its tables, TypeORM entities, repositories, and schema changes.
-- A module stores another module's identifier when it needs a reference. It does not import the other module's TypeORM entity.
+- A module stores another module's identifier when it needs a reference. Business logic uses public contracts rather than another module's TypeORM entity. An explicitly approved persistence mapping may import the referenced entity only to define its TypeORM relationship.
 - Schema changes use TypeORM migrations.
 - A migration changes only the tables owned by its module unless one coordinated change must update both sides of a relationship.
 - Services use database transactions for multi-write operations that must succeed or fail together.

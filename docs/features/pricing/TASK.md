@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/pricing/PLAN.md`
 
-Status: Milestones 2 and 3 are implemented and awaiting review.
+Status: All milestones are complete and approved under the controller and service unit-test scope.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -30,14 +30,14 @@ Status: Milestones 2 and 3 are implemented and awaiting review.
 - [x] Export the intentional Room Catalog contract without exposing entities or repositories.
 - [x] Add the Room Rate migration with checks, restrictive foreign key, and exclusion constraint.
 - [x] Add the `btree_gist` extension step required by the exclusion constraint.
-- [x] Add the Room Rate TypeORM entity without importing a Room Catalog entity.
+- [x] Add the Room Rate TypeORM entity with the approved Room Type persistence relationship.
 - [x] Add the Room Rate repository port and TypeORM adapter.
 - [x] Keep database overlap violations outside the application error mapping.
 - [x] Add an injectable hotel-local clock for `Asia/Ho_Chi_Minh` business dates.
 - [x] Add the initial `PricingModule` wiring.
 - [x] Add required service unit coverage for the Room Catalog contract and persistence-facing rules.
 - [x] Run focused verification.
-- [ ] Review and approve Milestone 2.
+- [x] Review and approve Milestone 2.
 
 ## Milestone 3 - Room Rate Management
 
@@ -53,7 +53,7 @@ Status: Milestones 2 and 3 are implemented and awaiting review.
 - [x] Add Room Rate service unit tests.
 - [x] Add management controller unit tests.
 - [x] Run focused verification.
-- [ ] Review and approve Milestone 3.
+- [x] Review and approve Milestone 3.
 
 ### Verification Evidence
 
@@ -61,40 +61,60 @@ Status: Milestones 2 and 3 are implemented and awaiting review.
 - Focused ESLint and Prettier checks passed for the changed TypeScript and tracking files.
 - The repository-local Nest build and `git diff --check` passed.
 - DTOs use built-in `class-validator` decorators for field rules, the service owns remaining business checks, and the repository only performs data operations and queries.
-- The Pricing migration and PostgreSQL exclusion constraint have not been executed against PostgreSQL.
+- The user later confirmed that the Pricing migration had already completed without errors against PostgreSQL. The agent did not independently observe that execution.
 
 ## Milestone 4 - Internal Bulk Quote Contract
 
-- [ ] Add module-owned quote request and result types.
-- [ ] Implement one bulk rate read for all requested Room Type IDs and nights.
-- [ ] Sum adjacent ranges into `pricePerRoomStay` with safe integer checks.
-- [ ] Return every applied Room Rate with stored and stay-clipped boundaries.
-- [ ] Calculate each applied rate's night count and subtotal.
-- [ ] Return incomplete-coverage Room Types through `unquotedRoomTypeIds` without partial totals.
-- [ ] Preserve input Room Type order in quote results.
-- [ ] Export the intentional Pricing quote contract from `PricingModule`.
-- [ ] Add Pricing quote service unit tests.
-- [ ] Test a stay that starts in the first of three rates and ends in the third returns all three applied rates.
-- [ ] Verify no public Pricing HTTP route was added.
-- [ ] Verify Pricing has no Booking dependency.
-- [ ] Run focused verification.
-- [ ] Review and approve Milestone 4.
+- [x] Add module-owned quote request and result types.
+- [x] Implement one bulk rate read for all requested Room Type IDs and nights.
+- [x] Sum adjacent ranges into `pricePerRoomStay` with safe integer checks.
+- [x] Return every applied Room Rate with stored and stay-clipped boundaries.
+- [x] Calculate each applied rate's night count and subtotal.
+- [x] Return incomplete-coverage Room Types through `unquotedRoomTypeIds` without partial totals.
+- [x] Preserve input Room Type order in quote results.
+- [x] Export the intentional Pricing quote contract from `PricingModule`.
+- [x] Add Pricing quote service unit tests.
+- [x] Test a stay that starts in the first of three rates and ends in the third returns all three applied rates.
+- [x] Verify no public Pricing HTTP route was added.
+- [x] Verify Pricing has no Booking dependency.
+- [x] Run focused verification.
+- [x] Review and approve Milestone 4.
+
+### Verification Evidence
+
+- On 2026-08-23, 4 focused Pricing and Room Catalog controller/service suites passed with 64 tests.
+- Focused ESLint and Prettier checks passed for the Milestone 4 TypeScript and tracking files.
+- The repository-local Nest build and `git diff --check` passed.
+- The quote request DTO owns field-level validation, the quote service owns cross-field and coverage rules, and the repository performs one bulk overlap query.
+- A source boundary scan found only the management Pricing controller and no Booking dependency under `src/modules/pricing`.
+- The user later confirmed that the Pricing migration had already completed without errors against PostgreSQL. The agent did not independently observe that execution.
 
 ## Milestone 5 - Feature Verification and Documentation Review
 
-- [ ] Run all Pricing controller and service unit tests.
-- [ ] Run focused tests for the Room Catalog public contract added for Pricing.
-- [ ] Run relevant ESLint checks.
-- [ ] Run relevant Prettier checks.
-- [ ] Run the repository-local Nest build.
-- [ ] Run `git diff --check`.
-- [ ] Review Swagger metadata against the implemented Pricing API.
-- [ ] Review module imports and exports against the approved dependency direction.
-- [ ] Record PostgreSQL migration and exclusion-constraint execution as verified or explicitly unverified.
-- [ ] Review `README.md` and architecture documentation for implementation accuracy.
-- [ ] Record exact verification evidence in `PROGRESS.md`.
-- [ ] Mark Pricing complete under the approved scope.
-- [ ] Review and approve Milestone 5.
+- [x] Run all Pricing controller and service unit tests.
+- [x] Run focused tests for the Room Catalog public contract added for Pricing.
+- [x] Run relevant ESLint checks.
+- [x] Run relevant Prettier checks.
+- [x] Run the repository-local Nest build.
+- [x] Run `git diff --check`.
+- [x] Review Swagger metadata against the implemented Pricing API.
+- [x] Review module imports and exports against the approved dependency direction.
+- [x] Record PostgreSQL migration and exclusion-constraint execution as verified or explicitly unverified.
+- [x] Review `README.md` and architecture documentation for implementation accuracy.
+- [x] Record exact verification evidence in `PROGRESS.md`.
+- [x] Mark Pricing complete under the approved scope.
+- [x] Review and approve Milestone 5.
+
+### Verification Evidence
+
+- On 2026-08-23, all 3 Pricing controller/service suites passed with 40 tests.
+- The focused Room Catalog public-contract service suite passed with 24 tests.
+- Relevant ESLint and Prettier checks passed for Pricing, the Room Catalog contract and service, the Pricing migration, and tracking documents.
+- The repository-local Nest build and `git diff --check` passed.
+- Swagger review confirmed five management Room Rate operations with bearer authentication, Administrator and Hotel Manager RBAC, request and response DTOs, paginated and object response envelopes, and operation-specific errors. No public Pricing HTTP controller exists.
+- Module review confirmed Pricing exports only `PRICING_QUOTE_SERVICE`, its services depend on Room Catalog through the public contract, and it has no Booking dependency. The `RoomRate` entity has the approved Room Type persistence relationship backed by the restrictive foreign key in the migration.
+- The user confirmed that the Pricing migration completed without errors against PostgreSQL before the Milestone 5 correction. The agent did not independently observe that execution. The added idempotent `CREATE EXTENSION IF NOT EXISTS btree_gist` statement protects fresh databases and was not part of the already-applied migration run.
+- `README.md` and `docs/architecture.md` were reviewed. The README Pricing scope and Pricing plan structure/error list were updated for implementation accuracy.
 
 ## Deferred Booking Decisions
 

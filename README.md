@@ -35,7 +35,7 @@ The system checks room availability for a selected date range based on reservati
 
 ### Room Pricing
 
-Hotel managers can create and update prices for each room type for a specific date or date range.
+Administrators and hotel managers can manage future date-ranged nightly prices for Room Types and read pricing history. Pricing also exposes an internal bulk stay-quote contract for other modules. Customer-facing price search remains part of the future Booking implementation.
 
 ### Reservations
 

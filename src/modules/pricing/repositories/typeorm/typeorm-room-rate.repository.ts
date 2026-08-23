@@ -46,6 +46,22 @@ export class TypeOrmRoomRateRepository implements RoomRateRepositoryPort {
     return this.repository.findOneBy({ id });
   }
 
+  findOverlappingForRoomTypes(
+    roomTypeIds: readonly string[],
+    startDate: string,
+    endDate: string,
+  ): Promise<RoomRate[]> {
+    return this.repository
+      .createQueryBuilder('roomRate')
+      .where('roomRate.roomTypeId IN (:...roomTypeIds)', { roomTypeIds })
+      .andWhere('roomRate.startDate < :endDate', { endDate })
+      .andWhere('roomRate.endDate > :startDate', { startDate })
+      .orderBy('roomRate.roomTypeId', 'ASC')
+      .addOrderBy('roomRate.startDate', 'ASC')
+      .addOrderBy('roomRate.id', 'ASC')
+      .getMany();
+  }
+
   async remove(roomRate: RoomRate): Promise<void> {
     await this.repository.remove(roomRate);
   }
