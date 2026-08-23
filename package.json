@@ -27,7 +27,8 @@
     "migration:revert": "npm run typeorm -- migration:revert",
     "seed:identity": "node -r ts-node/register -r tsconfig-paths/register src/database/seeds/identity-access.seed.ts",
     "seed:room-catalog": "node -r ts-node/register -r tsconfig-paths/register src/database/seeds/room-catalog.seed.ts",
-    "seed": "npm run seed:identity && npm run seed:room-catalog",
+    "seed:pricing": "node -r ts-node/register -r tsconfig-paths/register src/database/seeds/pricing.seed.ts",
+    "seed": "npm run seed:identity && npm run seed:room-catalog && npm run seed:pricing",
     "prepare": "husky || true"
   },
   "dependencies": {
