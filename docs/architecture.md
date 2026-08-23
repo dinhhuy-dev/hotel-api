@@ -45,16 +45,16 @@ The application has two internal architecture styles:
 
 ## 4. Module Landscape
 
-| Module            | Responsibility                                                       | Owned information                                                 |
-| ----------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `identity-access` | Authentication, accounts, account roles, and credentials             | Accounts, roles, password hashes, and account tokens              |
-| `customer`        | Customer profiles and personal information                           | Contact and identification details                                |
-| `room-catalog`    | Room types, physical rooms, facilities, floors, and room status      | Room types, facilities, rooms, and operational status             |
-| `pricing`         | Nightly prices and stay quotes for room types                        | Date-ranged room rates                                            |
-| `booking`         | Availability, reservations, room assignment, check-in, and check-out | Reservations, reservation items, price snapshots, and assignments |
-| `payment`         | Payments, refunds, and payment status                                | Immutable payment transactions                                    |
-| `housekeeping`    | Cleaning task creation, assignment, and progress                     | Housekeeping tasks                                                |
-| `maintenance`     | Maintenance request creation, assignment, and progress               | Maintenance requests and tasks                                    |
+| Module                  | Responsibility                                                       | Owned information                                                 |
+| ----------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `identity-access`       | Authentication, accounts, account roles, and credentials             | Accounts, roles, password hashes, and account tokens              |
+| `customer` (future)     | Customer profiles and personal information                           | Contact and identification details                                |
+| `room-catalog`          | Room types, physical rooms, facilities, floors, and room status      | Room types, facilities, rooms, and operational status             |
+| `pricing`               | Nightly prices and stay quotes for room types                        | Date-ranged room rates                                            |
+| `booking`               | Availability, reservations, mock payment, room assignment, and stays | Reservations, reservation items, price snapshots, and assignments |
+| `payment` (future)      | Payments, refunds, and payment status                                | Immutable payment transactions                                    |
+| `housekeeping` (future) | Cleaning task creation, assignment, and progress                     | Housekeeping tasks                                                |
+| `maintenance` (future)  | Maintenance request creation, assignment, and progress               | Maintenance requests and tasks                                    |
 
 ### Dependency Overview
 
@@ -69,7 +69,7 @@ flowchart LR
     Booking["booking"]
     Payment["payment (future)"]
     Housekeeping["housekeeping (future)"]
-    Maintenance["maintenance"]
+    Maintenance["maintenance (future)"]
     MockPayment["booking-local mock payment"]
     MockHousekeeping["booking-local no-op housekeeping"]
 
@@ -85,7 +85,7 @@ flowchart LR
 
 `identity-access` protects HTTP routes and creates the authenticated-user context. Business modules read that context at the presentation boundary and pass the required account or customer identifiers into their application logic.
 
-The approved Booking MVP does not depend on implemented Customer, Payment, or Housekeeping modules. Online Customer operations use the authenticated account ID as a mock Customer ID, while Receptionist creation accepts a Customer UUID. Booking publishes local payment and refund events to an always-successful mock handler and publishes check-out events to a no-op Housekeeping handler. The module landscape keeps Customer, Payment, and Housekeeping as future target modules rather than claiming that they are implemented dependencies.
+The approved Booking MVP does not depend on implemented Customer, Payment, Housekeeping, or Maintenance modules. Online Customer operations use the authenticated account ID as a mock Customer ID, while Receptionist creation accepts a Customer UUID. Booking publishes local payment and refund events to an always-successful mock handler and publishes check-out events to a no-op Housekeeping handler. The module landscape keeps Customer, Payment, Housekeeping, and Maintenance as future target modules rather than claiming that they are implemented dependencies.
 
 ## 5. Module Structures
 

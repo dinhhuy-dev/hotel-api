@@ -2,7 +2,7 @@
 
 ## Status
 
-Milestones 1 through 6 are approved. Milestone 7 full verification and documentation review is next.
+All seven milestones are approved. Booking is complete under the approved controller and service unit-test scope.
 
 This plan is the single source of truth for the approved Booking MVP. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 

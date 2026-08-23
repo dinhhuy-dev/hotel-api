@@ -314,6 +314,15 @@ export class ReservationCommandService {
       { roomTypeIds, lockForUpdate: true },
       manager,
     );
+    const concurrentReplay = await this.repository.findByIdempotencyKey(
+      context.idempotencyKey,
+      manager,
+    );
+
+    if (concurrentReplay !== null) {
+      return this.replay(concurrentReplay, context, manager);
+    }
+
     const now = this.clock.now();
 
     this.assertAllRoomTypesAvailable(roomTypes, roomTypeIds);

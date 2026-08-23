@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: Milestones 1 through 6 are approved. Milestone 7 full verification and documentation review is next.
+Status: All seven milestones are approved. Booking is complete under the approved controller and service unit-test scope.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -150,19 +150,30 @@ Status: Milestones 1 through 6 are approved. Milestone 7 full verification and d
 
 ## Milestone 7 - Full Verification and Documentation Review
 
-- [ ] Run all 4 Booking controller unit-test suites.
-- [ ] Run all 6 Booking service unit-test suites.
-- [ ] Run relevant ESLint checks.
-- [ ] Run relevant Prettier checks.
-- [ ] Run the repository-local Nest build.
-- [ ] Run `git diff --check`.
-- [ ] Review Swagger metadata against the implemented API.
-- [ ] Review module imports, exports, mock adapters, and dependency direction.
-- [ ] Review transaction boundaries and sorted lock acquisition.
-- [ ] Review README and architecture documentation for implementation accuracy.
-- [ ] Record exact verification evidence in this file and `PROGRESS.md`.
-- [ ] Mark Booking complete under the approved scope.
-- [ ] Review and approve Milestone 7.
+- [x] Run all 4 Booking controller unit-test suites.
+- [x] Run all 6 Booking service unit-test suites.
+- [x] Run relevant ESLint checks.
+- [x] Run relevant Prettier checks.
+- [x] Run the repository-local Nest build.
+- [x] Run `git diff --check`.
+- [x] Review Swagger metadata against the implemented API.
+- [x] Review module imports, exports, mock adapters, and dependency direction.
+- [x] Review transaction boundaries and sorted lock acquisition.
+- [x] Review README and architecture documentation for implementation accuracy.
+- [x] Record exact verification evidence in this file and `PROGRESS.md`.
+- [x] Mark Booking complete under the approved scope.
+- [x] Review and approve Milestone 7.
+
+### Verification Evidence
+
+- On 2026-08-24, all 4 Booking controller suites passed with 23 tests and all 6 Booking service suites passed with 106 tests.
+- The complete Booking controller and service scope passed with 10 suites and 129 tests.
+- The focused Pricing quote and Room Catalog module contract suites passed with 2 suites and 15 tests.
+- Relevant ESLint and Prettier checks, the repository-local Nest build, `git diff --check`, and the no-em-dash language scan passed.
+- Primary and independent reviews confirmed all 14 routes, RBAC, UUID parsing, HTTP statuses, Swagger metadata, response field safety, module wiring, public contracts, dependency direction, transaction boundaries, lock ordering, mock handlers, and post-commit events.
+- Transaction review found and verified the fix for a concurrent same-key creation race by rechecking idempotency after sorted Room Type locks and before capacity and Pricing checks.
+- Documentation review aligned README and architecture claims with the implemented Booking MVP and clearly marked Customer, real Payment, Housekeeping, and Maintenance modules as future scope.
+- A live PostgreSQL migration was not run. Migration, repository, PostgreSQL integration, and E2E tests remain deferred under the approved scope.
 
 ## Deferred Work
 

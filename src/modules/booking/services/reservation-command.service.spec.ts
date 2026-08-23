@@ -453,6 +453,28 @@ describe('ReservationCommandService', () => {
     expect(repository.saveReservation).not.toHaveBeenCalled();
   });
 
+  it('replays an idempotency key that becomes visible after Room Type locks', async () => {
+    const existing = createReservation();
+    repository.findByIdempotencyKey.mockResolvedValueOnce(null).mockResolvedValueOnce(existing);
+    repository.findCommittedQuantities.mockResolvedValue([
+      { roomTypeId: FIRST_ROOM_TYPE_ID, quantity: 3 },
+      { roomTypeId: SECOND_ROOM_TYPE_ID, quantity: 3 },
+    ]);
+
+    const result = await service.createForCustomer(ACCOUNT_ID, IDEMPOTENCY_KEY, createDto());
+
+    expect(result.id).toBe(RESERVATION_ID);
+    expect(repository.findByIdempotencyKey).toHaveBeenNthCalledWith(1, IDEMPOTENCY_KEY, manager);
+    expect(repository.findByIdempotencyKey).toHaveBeenNthCalledWith(2, IDEMPOTENCY_KEY, manager);
+    expect(roomCatalogService.findAvailabilityRoomTypes).toHaveBeenCalledTimes(1);
+    expect(roomCatalogService.findAvailabilityRoomTypes.mock.invocationCallOrder[0]).toBeLessThan(
+      repository.findByIdempotencyKey.mock.invocationCallOrder[1],
+    );
+    expect(repository.findCommittedQuantities).not.toHaveBeenCalled();
+    expect(pricingQuoteService.quote).not.toHaveBeenCalled();
+    expect(repository.saveReservation).not.toHaveBeenCalled();
+  });
+
   it('rejects a Customer replay when the global key belongs to another Customer', async () => {
     repository.findByIdempotencyKey.mockResolvedValue(
       createReservation({ customerId: OTHER_CUSTOMER_ID }),
