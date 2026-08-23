@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: Milestone 1 planning and tracking is complete and awaiting review.
+Status: Milestones 1 and 2 are approved. Milestone 3 availability is next.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -22,7 +22,7 @@ Status: Milestone 1 planning and tracking is complete and awaiting review.
 - [x] Align Booking dependencies in `docs/architecture.md`.
 - [x] Record the active Booking checkpoint in `PROGRESS.md`.
 - [x] Run focused documentation verification.
-- [ ] Review and approve Milestone 1 before source implementation starts.
+- [x] Review and approve Milestone 1 before source implementation starts.
 
 ### Verification Evidence
 
@@ -33,19 +33,27 @@ Status: Milestone 1 planning and tracking is complete and awaiting review.
 
 ## Milestone 2 - Persistence and Integration Foundation
 
-- [ ] Add Reservation, payment, and cancellation enums.
-- [ ] Add Reservation, Reservation Item, and Room Assignment entities.
-- [ ] Add the single Booking migration with internal foreign keys, checks, and indexes.
-- [ ] Add the active Room Assignment partial unique index.
-- [ ] Add `BookingRepositoryPort` and `TypeOrmBookingRepository`.
-- [ ] Add the injectable Booking clock.
-- [ ] Add the Room Catalog Booking contract and export token.
-- [ ] Extend Pricing quote access with an optional transaction manager.
-- [ ] Add the Booking-local event bus and event types.
-- [ ] Add the mock Payment and no-op Housekeeping handlers.
-- [ ] Add `BookingModule` wiring and register it in `AppModule`.
-- [ ] Run focused verification.
-- [ ] Review and approve Milestone 2.
+- [x] Add Reservation, payment, and cancellation enums.
+- [x] Add Reservation, Reservation Item, and Room Assignment entities.
+- [x] Add the single Booking migration with internal foreign keys, checks, and indexes.
+- [x] Add the active Room Assignment partial unique index.
+- [x] Add `BookingRepositoryPort` and `TypeOrmBookingRepository`.
+- [x] Add the injectable Booking clock.
+- [x] Add the Room Catalog Booking contract and export token.
+- [x] Extend Pricing quote access with an optional transaction manager.
+- [x] Add the Booking-local event bus and event types.
+- [x] Add the mock Payment and no-op Housekeeping handlers.
+- [x] Add `BookingModule` wiring and register it in `AppModule`.
+- [x] Run focused verification.
+- [x] Review and approve Milestone 2.
+
+### Verification Evidence
+
+- On 2026-08-23, the focused Pricing quote and Room Catalog module suites passed with 2 suites and 15 tests.
+- Focused ESLint and Prettier checks passed for all Milestone 2 TypeScript and tracking files.
+- The repository-local Nest build and `git diff --check` passed.
+- Entity metadata and Booking query SQL were inspected without running a live PostgreSQL migration.
+- Primary and independent reviews found no remaining material issues after event error handling, event typing, and check-out timestamp fixes.
 
 ## Milestone 3 - Availability
 

@@ -8,6 +8,7 @@ import type {
 } from '../contracts/pricing-quote.contract';
 import { BulkRoomTypeQuoteRequestDto } from '../dto/bulk-room-type-quote-request.dto';
 import type { RoomRate } from '../entities/room-rate.entity';
+import type { EntityManager } from 'typeorm';
 import { ROOM_RATE_REPOSITORY } from '../repositories/ports/pricing-repository.token';
 import type { RoomRateRepositoryPort } from '../repositories/ports/room-rate-repository.port';
 
@@ -20,18 +21,29 @@ export class PricingQuoteService implements PricingQuoteContract {
     private readonly repository: Pick<RoomRateRepositoryPort, 'findOverlappingForRoomTypes'>,
   ) {}
 
-  async quote(request: BulkRoomTypeQuoteRequestDto): Promise<BulkRoomTypeQuoteResult> {
+  async quote(
+    request: BulkRoomTypeQuoteRequestDto,
+    manager?: EntityManager,
+  ): Promise<BulkRoomTypeQuoteResult> {
     this.validateRequestFields(request);
 
     if (request.checkInDate >= request.checkOutDate) {
       throw this.invalidQuoteRangeException();
     }
 
-    const roomRates = await this.repository.findOverlappingForRoomTypes(
-      request.roomTypeIds,
-      request.checkInDate,
-      request.checkOutDate,
-    );
+    const roomRates =
+      manager === undefined
+        ? await this.repository.findOverlappingForRoomTypes(
+            request.roomTypeIds,
+            request.checkInDate,
+            request.checkOutDate,
+          )
+        : await this.repository.findOverlappingForRoomTypes(
+            request.roomTypeIds,
+            request.checkInDate,
+            request.checkOutDate,
+            manager,
+          );
     const ratesByRoomType = this.groupRatesByRoomType(roomRates);
     const quotes: RoomTypeStayQuote[] = [];
     const unquotedRoomTypeIds: string[] = [];

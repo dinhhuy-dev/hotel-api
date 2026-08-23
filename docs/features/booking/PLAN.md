@@ -2,7 +2,7 @@
 
 ## Status
 
-Milestone 1 planning and tracking is complete and awaiting review. Source implementation has not started.
+Milestones 1 and 2 are approved. Milestone 3 availability is next.
 
 This plan is the single source of truth for the approved Booking MVP. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 

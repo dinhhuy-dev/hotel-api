@@ -16,6 +16,8 @@ import { RoomTypeService } from './services/room-type.service';
 import { ManagementRoomController } from './controller/management-room.controller';
 import { StaffRoomController } from './controller/staff-room.controller';
 import { RoomService } from './services/room.service';
+import { BOOKING_ROOM_CATALOG_SERVICE } from './contracts/booking-room-catalog.contract';
+import { TypeOrmBookingRoomCatalogService } from './repositories/typeorm/typeorm-booking-room-catalog.service';
 
 describe('RoomCatalogModule', () => {
   it('registers the room catalog providers and repository aliases', () => {
@@ -40,6 +42,7 @@ describe('RoomCatalogModule', () => {
         TypeOrmFacilityRepository,
         TypeOrmRoomTypeRepository,
         TypeOrmRoomRepository,
+        TypeOrmBookingRoomCatalogService,
         expect.objectContaining({
           provide: FACILITY_REPOSITORY,
           useExisting: TypeOrmFacilityRepository,
@@ -49,7 +52,15 @@ describe('RoomCatalogModule', () => {
           useExisting: TypeOrmRoomTypeRepository,
         }),
         expect.objectContaining({ provide: ROOM_REPOSITORY, useExisting: TypeOrmRoomRepository }),
+        expect.objectContaining({
+          provide: BOOKING_ROOM_CATALOG_SERVICE,
+          useExisting: TypeOrmBookingRoomCatalogService,
+        }),
       ]),
+    );
+
+    expect(Reflect.getMetadata(MODULE_METADATA.EXPORTS, RoomCatalogModule)).toEqual(
+      expect.arrayContaining([BOOKING_ROOM_CATALOG_SERVICE]),
     );
   });
 });

@@ -21,6 +21,8 @@ import { ManagementRoomController } from './controller/management-room.controlle
 import { StaffRoomController } from './controller/staff-room.controller';
 import { RoomService } from './services/room.service';
 import { PRICING_ROOM_TYPE_QUERY } from './contracts/pricing-room-type-query.contract';
+import { BOOKING_ROOM_CATALOG_SERVICE } from './contracts/booking-room-catalog.contract';
+import { TypeOrmBookingRoomCatalogService } from './repositories/typeorm/typeorm-booking-room-catalog.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Facility, RoomType, Room, RoomTypeFacility])],
@@ -38,6 +40,7 @@ import { PRICING_ROOM_TYPE_QUERY } from './contracts/pricing-room-type-query.con
     TypeOrmFacilityRepository,
     TypeOrmRoomTypeRepository,
     TypeOrmRoomRepository,
+    TypeOrmBookingRoomCatalogService,
     {
       provide: FACILITY_REPOSITORY,
       useExisting: TypeOrmFacilityRepository,
@@ -54,7 +57,11 @@ import { PRICING_ROOM_TYPE_QUERY } from './contracts/pricing-room-type-query.con
       provide: PRICING_ROOM_TYPE_QUERY,
       useExisting: RoomTypeService,
     },
+    {
+      provide: BOOKING_ROOM_CATALOG_SERVICE,
+      useExisting: TypeOrmBookingRoomCatalogService,
+    },
   ],
-  exports: [PRICING_ROOM_TYPE_QUERY],
+  exports: [PRICING_ROOM_TYPE_QUERY, BOOKING_ROOM_CATALOG_SERVICE],
 })
 export class RoomCatalogModule {}

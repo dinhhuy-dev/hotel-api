@@ -2,6 +2,7 @@ import { BulkRoomTypeQuoteRequestDto } from '../dto/bulk-room-type-quote-request
 import { RoomRate } from '../entities/room-rate.entity';
 import type { RoomRateRepositoryPort } from '../repositories/ports/room-rate-repository.port';
 import { PricingQuoteService } from './pricing-quote.service';
+import type { EntityManager } from 'typeorm';
 
 const FIRST_ROOM_TYPE_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const SECOND_ROOM_TYPE_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -225,6 +226,20 @@ describe('PricingQuoteService', () => {
       FIRST_ROOM_TYPE_ID,
     ]);
     expect(result.unquotedRoomTypeIds).toEqual([THIRD_ROOM_TYPE_ID]);
+  });
+
+  it('uses the supplied transaction manager for the bulk rate read', async () => {
+    const manager = {} as EntityManager;
+    repository.findOverlappingForRoomTypes.mockResolvedValue([]);
+
+    await service.quote(createRequest(), manager);
+
+    expect(repository.findOverlappingForRoomTypes).toHaveBeenCalledWith(
+      [FIRST_ROOM_TYPE_ID],
+      '2026-09-03',
+      '2026-09-12',
+      manager,
+    );
   });
 
   it.each([
