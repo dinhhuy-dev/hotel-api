@@ -58,31 +58,34 @@ The application has two internal architecture styles:
 
 ### Dependency Overview
 
-Solid arrows represent synchronous calls through public module contracts. Dotted arrows represent in-process events.
+Solid arrows represent synchronous calls through public module contracts. Dotted arrows represent Booking-local in-process mock events.
 
 ```mermaid
 flowchart LR
     Identity["identity-access"]
-    Customer["customer"]
+    Customer["customer (future)"]
     Rooms["room-catalog"]
     Pricing["pricing"]
     Booking["booking"]
-    Payment["payment"]
-    Housekeeping["housekeeping"]
+    Payment["payment (future)"]
+    Housekeeping["housekeeping (future)"]
     Maintenance["maintenance"]
+    MockPayment["booking-local mock payment"]
+    MockHousekeeping["booking-local no-op housekeeping"]
 
     Pricing --> Rooms
     Booking --> Rooms
     Booking --> Pricing
-    Booking --> Customer
-    Booking --> Payment
     Housekeeping --> Rooms
     Maintenance --> Rooms
 
-    Booking -.-> Housekeeping
+    Booking -.-> MockPayment
+    Booking -.-> MockHousekeeping
 ```
 
 `identity-access` protects HTTP routes and creates the authenticated-user context. Business modules read that context at the presentation boundary and pass the required account or customer identifiers into their application logic.
+
+The approved Booking MVP does not depend on implemented Customer, Payment, or Housekeeping modules. Online Customer operations use the authenticated account ID as a mock Customer ID, while Receptionist creation accepts a Customer UUID. Booking publishes local payment and refund events to an always-successful mock handler and publishes check-out events to a no-op Housekeeping handler. The module landscape keeps Customer, Payment, and Housekeeping as future target modules rather than claiming that they are implemented dependencies.
 
 ## 5. Module Structures
 
@@ -158,19 +161,20 @@ Use synchronous calls when the caller needs a result before completing its opera
 - `pricing` validates active Room Types through `room-catalog`.
 - `booking` obtains Room Type capacity and operational data through `room-catalog`.
 - `booking` requests bulk stay quotes through `pricing`.
-- `booking` coordinates Customer and Payment workflows through their public contracts.
+
+Booking passes its active TypeORM `EntityManager` to the Room Catalog and Pricing public contracts when a Reservation write requires one transaction. Each called module obtains its own repositories from that manager. Booking does not import another module's entities or repositories.
 
 ### In-Process Events
 
-Use in-process events for secondary work that does not decide whether the main operation succeeds. The main example is housekeeping task creation after check-out.
+Use in-process events for Booking-local mock payment, refund, and post-check-out handling. Booking commits its required state before publishing an event. The mock Payment handler always publishes a matching success event, and the mock Housekeeping handler performs no work.
 
-Publish events after the main database transaction commits. This will use transactional outbox later when project growing. Event payloads contain identifiers and required facts, not TypeORM entities.
+The approved MVP event bus stores no events and has no outbox, queue, retry framework, or delivery guarantee. Repeated payment and refund operations republish the same request ID. Event payloads contain identifiers and required facts, not TypeORM entities.
 
 ### Transactions
 
-The application service that coordinates a write operation defines its transaction boundary. All Booking writes required to accept a reservation must complete atomically, including the final availability and price checks.
+The application service that coordinates a write operation defines its transaction boundary. All Booking writes required to accept a Reservation must complete atomically, including the final availability and price checks.
 
-Keep required business consistency in synchronous operations. Use events only after the state required by the event has committed.
+Booking application services call `DataSource.transaction()` and pass the transaction manager to Booking repositories and participating Room Catalog and Pricing contracts. Repositories do not open nested transactions. Events are published only after the state required by the event has committed.
 
 ## 7. Data Architecture
 
@@ -254,6 +258,8 @@ The `identity-access` module owns authentication and account roles.
 
 Tests cover successful behavior, authorization failures, invalid state changes, date boundaries, availability conflicts, payment changes, and room-status transitions.
 
+The approved Booking MVP completion scope requires controller and service unit tests only. Booking repository, migration, DTO, module-wiring, event-bus, PostgreSQL integration, and E2E tests remain outside that feature scope.
+
 ## 11. Key Architecture Rules
 
 | Area                | Rule                                                                                                          |
@@ -264,5 +270,6 @@ Tests cover successful behavior, authorization failures, invalid state changes, 
 | Module access       | Communicate through public contracts and in-process events.                                                   |
 | Persistence         | Keep TypeORM entities module-owned. Store migrations centrally and scope each migration to its owning module. |
 | Booking consistency | Recheck availability and pricing in the Booking write transaction.                                            |
+| Booking mocks       | Keep Customer identity, Payment events, and Housekeeping handling local and minimal for the approved MVP.     |
 | Authorization       | Derive account-role RBAC and ownership information from the authenticated context.                            |
 | API output          | Return response DTOs through the `{ data, meta }` envelope.                                                   |

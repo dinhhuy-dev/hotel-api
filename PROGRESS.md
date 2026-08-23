@@ -4,8 +4,10 @@ Last updated: 2026-08-23
 
 ## Active Feature
 
-- Feature: None.
-- Status: Pricing was completed and approved on 2026-08-23. No new feature checkpoint has started.
+- Feature: `booking`.
+- Status: Milestone 1 planning and tracking is complete and awaiting review. Source implementation has not started.
+- Active plan: `docs/features/booking/PLAN.md`.
+- Active tasks: `docs/features/booking/TASK.md`.
 
 ## Completed
 
@@ -20,6 +22,11 @@ Last updated: 2026-08-23
 
 - Use repository-local Node.js commands because the global npm launcher is unreliable.
 
+## Latest Verification
+
+- Booking Milestone 1: Repository-local Prettier, `git diff --check`, documentation scope checks, and the no-em-dash language check passed on 2026-08-23.
+- The new Booking plan and task checklist exist, the superseded decision record is removed, and no Booking source directory exists.
+
 ## Next Step
 
-- Start a separate Booking planning checkpoint when requested. Booking implementation has not started.
+- Review and approve Booking Milestone 1 before Milestone 2 source implementation begins.
