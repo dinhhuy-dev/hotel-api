@@ -45,18 +45,16 @@ The application has two internal architecture styles:
 
 ## 4. Module Landscape
 
-| Module                   | Responsibility                                                  | Owned information                                       |
-| ------------------------ | --------------------------------------------------------------- | ------------------------------------------------------- |
-| `identity-access`        | Authentication, accounts, account roles, and credentials        | Accounts, roles, password hashes, and account tokens    |
-| `customer`               | Customer profiles and personal information                      | Contact and identification details                      |
-| `room-catalog`           | Room types, physical rooms, facilities, floors, and room status | Room types, facilities, rooms, and operational status   |
-| `pricing`                | Prices for each room type and date range                        | Room-type prices                                        |
-| `inventory-availability` | Availability checks and sellable room inventory                 | Availability records and inventory blocks               |
-| `reservation`            | Reservation creation, confirmation, updates, and cancellation   | Reservations and reservation status                     |
-| `stay`                   | Room assignment, check-in, and check-out                        | Stays, room assignments, and arrival or departure times |
-| `payment`                | Deposits, payments, refunds, and payment status                 | Payment transactions                                    |
-| `housekeeping`           | Cleaning task creation, assignment, and progress                | Housekeeping tasks                                      |
-| `maintenance`            | Maintenance request creation, assignment, and progress          | Maintenance requests and tasks                          |
+| Module            | Responsibility                                                       | Owned information                                                 |
+| ----------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `identity-access` | Authentication, accounts, account roles, and credentials             | Accounts, roles, password hashes, and account tokens              |
+| `customer`        | Customer profiles and personal information                           | Contact and identification details                                |
+| `room-catalog`    | Room types, physical rooms, facilities, floors, and room status      | Room types, facilities, rooms, and operational status             |
+| `pricing`         | Nightly prices and stay quotes for room types                        | Date-ranged room rates                                            |
+| `booking`         | Availability, reservations, room assignment, check-in, and check-out | Reservations, reservation items, price snapshots, and assignments |
+| `payment`         | Payments, refunds, and payment status                                | Immutable payment transactions                                    |
+| `housekeeping`    | Cleaning task creation, assignment, and progress                     | Housekeeping tasks                                                |
+| `maintenance`     | Maintenance request creation, assignment, and progress               | Maintenance requests and tasks                                    |
 
 ### Dependency Overview
 
@@ -68,26 +66,20 @@ flowchart LR
     Customer["customer"]
     Rooms["room-catalog"]
     Pricing["pricing"]
-    Inventory["inventory-availability"]
-    Reservation["reservation"]
-    Stay["stay"]
+    Booking["booking"]
     Payment["payment"]
     Housekeeping["housekeeping"]
     Maintenance["maintenance"]
 
     Pricing --> Rooms
-    Inventory --> Rooms
-    Reservation --> Customer
-    Reservation --> Pricing
-    Reservation --> Inventory
-    Stay --> Reservation
-    Stay --> Rooms
-    Payment --> Reservation
+    Booking --> Rooms
+    Booking --> Pricing
+    Booking --> Customer
+    Booking --> Payment
     Housekeeping --> Rooms
     Maintenance --> Rooms
-    Maintenance --> Inventory
 
-    Stay -.-> Housekeeping
+    Booking -.-> Housekeeping
 ```
 
 `identity-access` protects HTTP routes and creates the authenticated-user context. Business modules read that context at the presentation boundary and pass the required account or customer identifiers into their application logic.
@@ -163,9 +155,10 @@ Public contracts use module-owned request and response types. They expose busine
 
 Use synchronous calls when the caller needs a result before completing its operation. Examples include:
 
-- `reservation` checks prices through `pricing`.
-- `reservation` checks and reserves inventory through `inventory-availability`.
-- `stay` reads reservation information before check-in.
+- `pricing` validates active Room Types through `room-catalog`.
+- `booking` obtains Room Type capacity and operational data through `room-catalog`.
+- `booking` requests bulk stay quotes through `pricing`.
+- `booking` coordinates Customer and Payment workflows through their public contracts.
 
 ### In-Process Events
 
@@ -175,7 +168,7 @@ Publish events after the main database transaction commits. This will use transa
 
 ### Transactions
 
-The application service that coordinates a write operation defines its transaction boundary. All writes required to accept a reservation must complete atomically, including the final availability check.
+The application service that coordinates a write operation defines its transaction boundary. All Booking writes required to accept a reservation must complete atomically, including the final availability and price checks.
 
 Keep required business consistency in synchronous operations. Use events only after the state required by the event has committed.
 
@@ -188,7 +181,7 @@ The application uses one PostgreSQL database and TypeORM. Sharing a database doe
 - Schema changes use TypeORM migrations.
 - A migration changes only the tables owned by its module unless one coordinated change must update both sides of a relationship.
 - Services use database transactions for multi-write operations that must succeed or fail together.
-- Availability is rechecked inside the reservation write transaction before the system accepts a reservation.
+- Availability and pricing are rechecked inside the Booking write transaction before the system accepts a reservation.
 
 ## 8. API and Cross-Cutting Concerns
 
@@ -263,13 +256,13 @@ Tests cover successful behavior, authorization failures, invalid state changes, 
 
 ## 11. Key Architecture Rules
 
-| Area                    | Rule                                                                                                          |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Hotel scope             | Model the single hotel managed by the system.                                                                 |
-| `identity-access`       | Keep Clean Architecture dependencies directed toward the domain.                                              |
-| Other modules           | Use the standard NestJS layered structure.                                                                    |
-| Module access           | Communicate through public contracts and in-process events.                                                   |
-| Persistence             | Keep TypeORM entities module-owned. Store migrations centrally and scope each migration to its owning module. |
-| Reservation consistency | Recheck availability in the reservation write transaction.                                                    |
-| Authorization           | Derive account-role RBAC and ownership information from the authenticated context.                            |
-| API output              | Return response DTOs through the `{ data, meta }` envelope.                                                   |
+| Area                | Rule                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Hotel scope         | Model the single hotel managed by the system.                                                                 |
+| `identity-access`   | Keep Clean Architecture dependencies directed toward the domain.                                              |
+| Other modules       | Use the standard NestJS layered structure.                                                                    |
+| Module access       | Communicate through public contracts and in-process events.                                                   |
+| Persistence         | Keep TypeORM entities module-owned. Store migrations centrally and scope each migration to its owning module. |
+| Booking consistency | Recheck availability and pricing in the Booking write transaction.                                            |
+| Authorization       | Derive account-role RBAC and ownership information from the authenticated context.                            |
+| API output          | Return response DTOs through the `{ data, meta }` envelope.                                                   |

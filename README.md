@@ -95,6 +95,33 @@ npm run start:prod
 
 The application uses the `PORT` environment variable when provided and listens on port `3000` by default.
 
+## Development Seed Data
+
+Development seed data is available for Identity Access and Room Catalog. Apply all migrations before running a seed:
+
+```bash
+npm run migration:run
+```
+
+Set `SEED_ACCOUNT_PASSWORD` in `.env` to a password containing 8 to 30 characters. The Identity Access seed uses this password for all seeded accounts:
+
+- `administrator@hotel.test`
+- `hotel-manager@hotel.test`
+- `receptionist@hotel.test`
+- `housekeeping-staff@hotel.test`
+- `maintenance-staff@hotel.test`
+- `customer@hotel.test`
+
+Run one module seed or both seeds:
+
+```bash
+npm run seed:identity
+npm run seed:room-catalog
+npm run seed
+```
+
+The commands refuse to run when `NODE_ENV=production`. Repeated runs skip compatible seed rows and fail instead of overwriting conflicting existing data.
+
 ## Testing
 
 ```bash
