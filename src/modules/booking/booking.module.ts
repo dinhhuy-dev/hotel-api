@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PricingModule } from '../pricing/pricing.module';
 import { RoomCatalogModule } from '../room-catalog/room-catalog.module';
 import { BOOKING_CLOCK, SystemBookingClock } from './contracts/booking-clock.contract';
+import { PublicAvailabilityController } from './controller/public-availability.controller';
 import { ReservationItem } from './entities/reservation-item.entity';
 import { Reservation } from './entities/reservation.entity';
 import { RoomAssignment } from './entities/room-assignment.entity';
@@ -12,6 +13,7 @@ import { MockPaymentEventHandler } from './events/mock-payment-event.handler';
 import { NoopHousekeepingEventHandler } from './events/noop-housekeeping-event.handler';
 import { BOOKING_REPOSITORY } from './repositories/ports/booking-repository.token';
 import { TypeOrmBookingRepository } from './repositories/typeorm/typeorm-booking.repository';
+import { AvailabilityService } from './services/availability.service';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { TypeOrmBookingRepository } from './repositories/typeorm/typeorm-booking
     RoomCatalogModule,
     PricingModule,
   ],
+  controllers: [PublicAvailabilityController],
   providers: [
+    AvailabilityService,
     TypeOrmBookingRepository,
     SystemBookingClock,
     BookingEventBus,

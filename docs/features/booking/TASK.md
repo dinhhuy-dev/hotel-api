@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: Milestones 1 and 2 are approved. Milestone 3 availability is next.
+Status: Milestones 1 through 3 are approved. Milestone 4 Reservation core is next.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -57,19 +57,26 @@ Status: Milestones 1 and 2 are approved. Milestone 3 availability is next.
 
 ## Milestone 3 - Availability
 
-- [ ] Add availability query and response DTOs.
-- [ ] Validate hotel-local dates, 30-night stays, guest count, and room quantity.
-- [ ] Read Room Catalog capacity and Facilities in bulk.
-- [ ] Read overlapping Booking commitments in bulk.
-- [ ] Request complete Pricing quotes in bulk.
-- [ ] Reject searches with more than 10 filtered candidate Room Types.
-- [ ] Generate mixed Room Type combinations recursively with pruning.
-- [ ] Apply total-price, distinct-type, and canonical-signature sorting.
-- [ ] Return exact pagination through a real `PaginatedResult`.
-- [ ] Add the public availability controller.
-- [ ] Add availability controller and service unit tests.
-- [ ] Run focused verification.
-- [ ] Review and approve Milestone 3.
+- [x] Add availability query and response DTOs.
+- [x] Validate hotel-local dates, 30-night stays, guest count, and room quantity.
+- [x] Read Room Catalog capacity and Facilities in bulk.
+- [x] Read overlapping Booking commitments in bulk.
+- [x] Request complete Pricing quotes in bulk.
+- [x] Reject searches with more than 10 filtered candidate Room Types.
+- [x] Generate mixed Room Type combinations recursively with pruning.
+- [x] Apply total-price, distinct-type, and canonical-signature sorting.
+- [x] Return exact pagination through a real `PaginatedResult`.
+- [x] Add the public availability controller.
+- [x] Add availability controller and service unit tests.
+- [x] Run focused verification.
+- [x] Review and approve Milestone 3.
+
+### Verification Evidence
+
+- On 2026-08-24, the Availability controller and service suites passed with 2 suites and 15 tests.
+- Focused ESLint and Prettier checks passed for all Milestone 3 TypeScript files and tracking files.
+- The repository-local Nest build and `git diff --check` passed.
+- Primary and independent reviews confirmed the validation split, bounded option generation, deterministic sorting, exact pagination, public route metadata, and Swagger failure coverage.
 
 ## Milestone 4 - Reservation Core
 
