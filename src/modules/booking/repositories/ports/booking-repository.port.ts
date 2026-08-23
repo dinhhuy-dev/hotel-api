@@ -23,6 +23,13 @@ export interface RoomTypeCommitment {
   readonly quantity: number;
 }
 
+export interface ExpiredPendingReservationOptions {
+  readonly now: Date;
+  readonly customerId?: string;
+  readonly checkInDate?: string;
+  readonly checkOutDate?: string;
+}
+
 export interface BookingRepositoryPort {
   findCommittedQuantities(
     roomTypeIds: readonly string[],
@@ -34,6 +41,10 @@ export interface BookingRepositoryPort {
   findByIdempotencyKey(idempotencyKey: string, manager: EntityManager): Promise<Reservation | null>;
   findWithDetailsById(id: string, manager: EntityManager): Promise<Reservation | null>;
   findPage(options: ReservationListOptions, manager: EntityManager): Promise<ReservationListResult>;
+  findExpiredPendingIds(
+    options: ExpiredPendingReservationOptions,
+    manager: EntityManager,
+  ): Promise<string[]>;
   findAndLockById(id: string, manager: EntityManager): Promise<Reservation | null>;
   saveReservation(reservation: Reservation, manager: EntityManager): Promise<Reservation>;
   saveReservationItems(

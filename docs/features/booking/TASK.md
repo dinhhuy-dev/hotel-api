@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: Milestones 1 through 3 are approved. Milestone 4 Reservation core is next.
+Status: Milestones 1 through 4 are approved. Milestone 5 payment, cancellation, and no-show is next.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -80,22 +80,29 @@ Status: Milestones 1 through 3 are approved. Milestone 4 Reservation core is nex
 
 ## Milestone 4 - Reservation Core
 
-- [ ] Add Customer and Receptionist creation DTOs.
-- [ ] Add Customer and staff query DTOs.
-- [ ] Add the shared Reservation response DTO.
-- [ ] Implement Customer creation with `accountId` as mock `customerId`.
-- [ ] Implement Receptionist creation with a supplied Customer UUID.
-- [ ] Validate distinct items, total quantity, guest capacity, availability, and Pricing.
-- [ ] Lock sorted Room Type IDs and repeat decisive checks in one transaction.
-- [ ] Store immutable contact, stay, item, and price snapshots.
-- [ ] Implement global UUID idempotency replay.
-- [ ] Implement lazy pending expiration without a scheduler.
-- [ ] Implement Customer-owned list and detail queries.
-- [ ] Implement staff list and detail queries and filters.
-- [ ] Add Customer, staff, and Receptionist controller coverage for the milestone.
-- [ ] Add Reservation command and query service unit tests.
-- [ ] Run focused verification.
-- [ ] Review and approve Milestone 4.
+- [x] Add Customer and Receptionist creation DTOs.
+- [x] Add Customer and staff query DTOs.
+- [x] Add the shared Reservation response DTO.
+- [x] Implement Customer creation with `accountId` as mock `customerId`.
+- [x] Implement Receptionist creation with a supplied Customer UUID.
+- [x] Validate distinct items, total quantity, guest capacity, availability, and Pricing.
+- [x] Lock sorted Room Type IDs and repeat decisive checks in one transaction.
+- [x] Store immutable contact, stay, item, and price snapshots.
+- [x] Implement global UUID idempotency replay.
+- [x] Implement lazy pending expiration without a scheduler.
+- [x] Implement Customer-owned list and detail queries.
+- [x] Implement staff list and detail queries and filters.
+- [x] Add Customer, staff, and Receptionist controller coverage for the milestone.
+- [x] Add Reservation command and query service unit tests.
+- [x] Run focused verification.
+- [x] Review and approve Milestone 4.
+
+### Verification Evidence
+
+- On 2026-08-24, the three Milestone 4 controller suites and two service suites passed with 5 suites and 43 tests.
+- All current Booking controller and service suites passed with 7 suites and 58 tests.
+- Focused ESLint and Prettier checks, the repository-local Nest build, and `git diff --check` passed.
+- Primary and independent reviews confirmed validation responsibilities, transaction manager propagation, sorted locks, idempotency races and ownership, effective-status pagination, PostgreSQL integer bounds, response field safety, RBAC, routes, and Swagger metadata.
 
 ## Milestone 5 - Payment, Cancellation, and No-Show
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Milestones 1 through 3 are approved. Milestone 4 Reservation core is next.
+Milestones 1 through 4 are approved. Milestone 5 payment, cancellation, and no-show is next.
 
 This plan is the single source of truth for the approved Booking MVP. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 

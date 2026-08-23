@@ -4,6 +4,9 @@ import { PricingModule } from '../pricing/pricing.module';
 import { RoomCatalogModule } from '../room-catalog/room-catalog.module';
 import { BOOKING_CLOCK, SystemBookingClock } from './contracts/booking-clock.contract';
 import { PublicAvailabilityController } from './controller/public-availability.controller';
+import { CustomerReservationController } from './controller/customer-reservation.controller';
+import { ReceptionistReservationController } from './controller/receptionist-reservation.controller';
+import { StaffReservationController } from './controller/staff-reservation.controller';
 import { ReservationItem } from './entities/reservation-item.entity';
 import { Reservation } from './entities/reservation.entity';
 import { RoomAssignment } from './entities/room-assignment.entity';
@@ -14,6 +17,8 @@ import { NoopHousekeepingEventHandler } from './events/noop-housekeeping-event.h
 import { BOOKING_REPOSITORY } from './repositories/ports/booking-repository.token';
 import { TypeOrmBookingRepository } from './repositories/typeorm/typeorm-booking.repository';
 import { AvailabilityService } from './services/availability.service';
+import { ReservationCommandService } from './services/reservation-command.service';
+import { ReservationQueryService } from './services/reservation-query.service';
 
 @Module({
   imports: [
@@ -21,9 +26,16 @@ import { AvailabilityService } from './services/availability.service';
     RoomCatalogModule,
     PricingModule,
   ],
-  controllers: [PublicAvailabilityController],
+  controllers: [
+    PublicAvailabilityController,
+    CustomerReservationController,
+    StaffReservationController,
+    ReceptionistReservationController,
+  ],
   providers: [
     AvailabilityService,
+    ReservationCommandService,
+    ReservationQueryService,
     TypeOrmBookingRepository,
     SystemBookingClock,
     BookingEventBus,

@@ -5,7 +5,7 @@ Last updated: 2026-08-23
 ## Active Feature
 
 - Feature: `booking`.
-- Status: Milestones 1 through 3 are approved. Milestone 4 Reservation core is next.
+- Status: Milestones 1 through 4 are approved. Milestone 5 payment, cancellation, and no-show is next.
 - Active plan: `docs/features/booking/PLAN.md`.
 - Active tasks: `docs/features/booking/TASK.md`.
 
@@ -24,6 +24,7 @@ Last updated: 2026-08-23
 
 ## Latest Verification
 
+- Booking Milestone 4: The three milestone controller suites and two service suites passed with 5 suites and 43 tests; all 7 current Booking suites passed with 58 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, transaction and lock review, idempotency review, effective-status pagination review, PostgreSQL integer-bound review, response exposure review, RBAC, route, and Swagger review passed on 2026-08-24.
 - Booking Milestone 3: The Availability controller and service suites passed with 2 suites and 15 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, algorithm review, route metadata review, and Swagger review passed on 2026-08-24.
 - Booking Milestone 2: The focused Pricing quote and Room Catalog module suites passed with 2 suites and 15 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, entity metadata inspection, and Booking query construction passed on 2026-08-23. A live PostgreSQL migration was not run.
 - Booking Milestone 1: Repository-local Prettier, `git diff --check`, documentation scope checks, and the no-em-dash language check passed on 2026-08-23.
@@ -31,4 +32,4 @@ Last updated: 2026-08-23
 
 ## Next Step
 
-- Implement Booking Milestone 4 Reservation core with controller and service unit tests.
+- Implement Booking Milestone 5 payment, cancellation, and no-show behavior.

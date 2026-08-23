@@ -8,6 +8,7 @@ import { Reservation } from '../../entities/reservation.entity';
 import { RoomAssignment } from '../../entities/room-assignment.entity';
 import {
   BookingRepositoryPort,
+  ExpiredPendingReservationOptions,
   ReservationListOptions,
   ReservationListResult,
   RoomTypeCommitment,
@@ -112,6 +113,39 @@ export class TypeOrmBookingRepository implements BookingRepositoryPort {
       .getManyAndCount();
 
     return { items, totalItems };
+  }
+
+  async findExpiredPendingIds(
+    options: ExpiredPendingReservationOptions,
+    manager: EntityManager,
+  ): Promise<string[]> {
+    const query = this.reservationRepository(manager)
+      .createQueryBuilder('reservation')
+      .select('reservation.id', 'id')
+      .where('reservation.status = :status', { status: ReservationStatus.Pending })
+      .andWhere('reservation.expiresAt <= :now', { now: options.now });
+
+    if (options.customerId !== undefined) {
+      query.andWhere('reservation.customerId = :customerId', {
+        customerId: options.customerId,
+      });
+    }
+
+    if (options.checkInDate !== undefined) {
+      query.andWhere('reservation.checkInDate = :checkInDate', {
+        checkInDate: options.checkInDate,
+      });
+    }
+
+    if (options.checkOutDate !== undefined) {
+      query.andWhere('reservation.checkOutDate = :checkOutDate', {
+        checkOutDate: options.checkOutDate,
+      });
+    }
+
+    const rows = await query.orderBy('reservation.id', 'ASC').getRawMany<{ id: string }>();
+
+    return rows.map((row) => row.id);
   }
 
   findAndLockById(id: string, manager: EntityManager): Promise<Reservation | null> {
