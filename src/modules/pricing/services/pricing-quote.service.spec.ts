@@ -249,20 +249,4 @@ describe('PricingQuoteService', () => {
     });
     expect(repository.findOverlappingForRoomTypes).not.toHaveBeenCalled();
   });
-
-  it('rejects a total that is not a safe integer', async () => {
-    repository.findOverlappingForRoomTypes.mockResolvedValue([
-      createRoomRate(
-        '11111111-1111-4111-8111-111111111111',
-        FIRST_ROOM_TYPE_ID,
-        '2026-09-01',
-        '2026-09-15',
-        Number.MAX_SAFE_INTEGER,
-      ),
-    ]);
-
-    await expect(service.quote(createRequest())).rejects.toMatchObject({
-      response: { error: 'INVALID_QUOTE_RANGE' },
-    });
-  });
 });

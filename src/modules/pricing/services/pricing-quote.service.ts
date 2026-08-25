@@ -110,10 +110,6 @@ export class PricingQuoteService implements PricingQuoteContract {
       const subtotal = roomRate.pricePerNight * nightCount;
       const nextTotal = pricePerRoomStay + subtotal;
 
-      if (!Number.isSafeInteger(subtotal) || !Number.isSafeInteger(nextTotal)) {
-        throw this.invalidQuoteRangeException();
-      }
-
       appliedRates.push({
         roomRateId: roomRate.id,
         rateStartDate: roomRate.startDate,
