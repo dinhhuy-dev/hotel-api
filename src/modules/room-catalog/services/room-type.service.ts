@@ -22,6 +22,7 @@ import {
   PublicRoomTypeDetailDto,
   PublicRoomTypeListItemDto,
 } from '../dto/room-type/public-room-type-response.dto';
+import type { PricingRoomTypeRecord } from '../contracts/pricing-room-type-query.contract';
 
 @Injectable()
 export class RoomTypeService {
@@ -93,6 +94,12 @@ export class RoomTypeService {
     }
 
     return this.toResponseDto(result.roomType, result.facilities);
+  }
+
+  async findById(id: string): Promise<PricingRoomTypeRecord | null> {
+    const roomType = await this.repository.findById(id);
+
+    return roomType === null ? null : { id: roomType.id, isActive: roomType.isActive };
   }
 
   async listPublic(
