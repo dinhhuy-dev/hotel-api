@@ -1,0 +1,17 @@
+language: 'en-US'
+
+reviews:
+  profile: chill
+  request_changes_workflow: true
+
+  high_level_summary: true
+  review_status: true
+  review_details: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches: ['develop', 'main']
+
+chat:
+  auto_reply: true

@@ -1,0 +1,19 @@
+export const ACCOUNT_REPOSITORY = Symbol('ACCOUNT_REPOSITORY');
+
+export const ACCOUNT_TOKEN_REPOSITORY = Symbol('ACCOUNT_TOKEN_REPOSITORY');
+
+export const PASSWORD_HASHER = Symbol('PASSWORD_HASHER');
+
+export const OPAQUE_TOKEN_HASHER = Symbol('OPAQUE_TOKEN_HASHER');
+
+export const OPAQUE_TOKEN_GENERATOR = Symbol('OPAQUE_TOKEN_GENERATOR');
+
+export const ACCESS_TOKEN_SERVICE = Symbol('ACCESS_TOKEN_SERVICE');
+
+export const EMAIL_SERVICE = Symbol('EMAIL_SERVICE');
+
+export const CLOCK = Symbol('CLOCK');
+
+export const ID_GENERATOR = Symbol('ID_GENERATOR');
+
+export const TRANSACTION_RUNNER = Symbol('TRANSACTION_RUNNER');

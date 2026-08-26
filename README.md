@@ -1,98 +1,145 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Hotel API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Hotel API is a backend system for managing one hotel. The current implementation provides authentication and RBAC, Room Catalog, Pricing, and the Booking MVP. Customers can search priced availability, create Reservations, view owned Reservations, request mock payment, and cancel Reservations.
 
-## Description
+The system supports one hotel only. It does not support branches or multiple hotels.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Customer profiles, real Payment processing, Housekeeping tasks, and Maintenance workflows remain future modules. Booking uses the authenticated account ID as a mock Customer ID, an always-successful local payment and refund handler, and a no-op post-check-out Housekeeping handler.
 
-## Project setup
+## User Roles
+
+- **Administrator:** Creates accounts, changes account roles, and manages Room Catalog and Pricing data.
+- **Hotel Manager:** Manages Room Catalog and Pricing data and reads Reservations.
+- **Receptionist:** Creates Reservations, requests mock payment, cancels or marks no-show, and performs check-in and check-out.
+- **Housekeeping Staff:** Has an authenticated role, while Housekeeping task APIs remain future scope.
+- **Maintenance Staff:** Has an authenticated role, while Maintenance workflow APIs remain future scope.
+- **Customer:** Searches priced availability and creates, reads, pays, or cancels owned Reservations.
+
+## Functional Scope
+
+### Account Management and RBAC
+
+Users can log in and log out. Role-based access control restricts each function to the appropriate roles. Administrators can create accounts and change an account's role.
+
+### Room Types and Rooms
+
+Administrators and hotel managers can manage room types, capacity, facilities, room numbers, floors, and room status.
+
+### Customers
+
+A real Customer profile module remains future scope. Booking stores immutable contact name and phone snapshots on each Reservation and uses account IDs or Receptionist-supplied UUIDs as mock Customer identifiers.
+
+### Room Availability
+
+Booking combines sellable Room Catalog capacity, overlapping Reservation commitments, and complete Pricing coverage for the selected stay. Public search returns bounded, sorted, priced combinations of Room Types.
+
+### Room Pricing
+
+Administrators and hotel managers can manage future date-ranged nightly prices for Room Types and read pricing history. Pricing exposes an internal bulk stay-quote contract that Booking uses for public availability and final Reservation price checks.
+
+### Reservations
+
+Customers and Receptionists can create immutable multi-room Reservations. Customers can read and cancel only their own Reservations. Receptionists and Hotel Managers can read Reservations, while Receptionists can request mock payment, cancel, or mark no-show. Mock payment success confirms an unexpired pending Reservation. Changes require cancellation and recreation.
+
+### Check-in and Check-out
+
+Receptionists can assign exact `READY` physical Rooms and check in a paid confirmed Reservation during its stay window. Check-out releases assignments, marks the Rooms `DIRTY`, records one check-out timestamp, and publishes a local no-op Housekeeping event after commit.
+
+### Payments
+
+Booking stores one full mock charge and one full mock refund state per Reservation. Local in-process handlers always succeed. Deposits, payment history, gateway callbacks, and a real Payment module remain future scope.
+
+### Housekeeping and Maintenance
+
+Housekeeping and Maintenance modules are not implemented. Booking only marks checked-out Rooms `DIRTY` and sends a local event to a no-op Housekeeping handler.
+
+## Architecture
+
+The application uses a NestJS modular monolith architecture.
+
+- The `identity-access` module uses Clean Architecture.
+- Other business modules use a standard NestJS layered structure with modules, controllers, services, repositories, DTOs, and entities.
+
+## Technology Stack
+
+- NestJS 11
+- TypeScript
+- Express
+- PostgreSQL
+- TypeORM
+- JWT authentication
+- Role-based access control
+- Jest
+
+## Installation
+
+Install the project dependencies:
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+## Running the Application
 
 ```bash
-# development
-$ npm run start
+# Development
+npm run start
 
-# watch mode
-$ npm run start:dev
+# Watch mode
+npm run start:dev
 
-# production mode
-$ npm run start:prod
+# Production
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+The application uses the `PORT` environment variable when provided and listens on port `3000` by default.
+
+## Development Seed Data
+
+Development seed data is available for Identity Access and Room Catalog. Apply all migrations before running a seed:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run migration:run
 ```
 
-## Deployment
+Set `SEED_ACCOUNT_PASSWORD` in `.env` to a password containing 8 to 30 characters. The Identity Access seed uses this password for all seeded accounts:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- `administrator@hotel.test`
+- `hotel-manager@hotel.test`
+- `receptionist@hotel.test`
+- `housekeeping-staff@hotel.test`
+- `maintenance-staff@hotel.test`
+- `customer@hotel.test`
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Run one module seed or both seeds:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run seed:identity
+npm run seed:room-catalog
+npm run seed
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The commands refuse to run when `NODE_ENV=production`. Repeated runs skip compatible seed rows and fail instead of overwriting conflicting existing data.
 
-## Resources
+## Testing
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+# Unit tests
+npm run test
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Test coverage
+npm run test:cov
+```
 
-## Support
+E2E tests require an existing dedicated PostgreSQL database whose name ends with `_test` or
+`-test`. The test runner refuses to use any other database name. It applies pending migrations and
+owns only the fixture rows that it creates.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```powershell
+$env:DB_DATABASE = 'hotel_api_test'
+npm run test:e2e
+Remove-Item Env:\DB_DATABASE
+```
