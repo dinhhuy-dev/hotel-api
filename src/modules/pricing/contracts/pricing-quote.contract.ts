@@ -1,4 +1,5 @@
 import type { BulkRoomTypeQuoteRequestDto } from '../dto/bulk-room-type-quote-request.dto';
+import type { EntityManager } from 'typeorm';
 
 export const PRICING_QUOTE_SERVICE = Symbol('PRICING_QUOTE_SERVICE');
 
@@ -25,5 +26,8 @@ export interface BulkRoomTypeQuoteResult {
 }
 
 export interface PricingQuoteContract {
-  quote(request: BulkRoomTypeQuoteRequestDto): Promise<BulkRoomTypeQuoteResult>;
+  quote(
+    request: BulkRoomTypeQuoteRequestDto,
+    manager?: EntityManager,
+  ): Promise<BulkRoomTypeQuoteResult>;
 }

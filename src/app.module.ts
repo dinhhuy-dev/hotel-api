@@ -8,6 +8,7 @@ import { IdentityAccessModule } from './modules/identity-access/identity-access.
 import { randomUUID } from 'node:crypto';
 import { RoomCatalogModule } from './modules/room-catalog/room-catalog.module';
 import { PricingModule } from './modules/pricing/pricing.module';
+import { BookingModule } from './modules/booking/booking.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { PricingModule } from './modules/pricing/pricing.module';
     IdentityAccessModule,
     RoomCatalogModule,
     PricingModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

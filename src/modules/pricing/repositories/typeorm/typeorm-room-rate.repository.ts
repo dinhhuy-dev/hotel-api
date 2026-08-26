@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { RoomRate } from '../../entities/room-rate.entity';
 import {
   RoomRateListOptions,
@@ -50,8 +50,11 @@ export class TypeOrmRoomRateRepository implements RoomRateRepositoryPort {
     roomTypeIds: readonly string[],
     startDate: string,
     endDate: string,
+    manager?: EntityManager,
   ): Promise<RoomRate[]> {
-    return this.repository
+    const repository = manager?.getRepository(RoomRate) ?? this.repository;
+
+    return repository
       .createQueryBuilder('roomRate')
       .where('roomRate.roomTypeId IN (:...roomTypeIds)', { roomTypeIds })
       .andWhere('roomRate.startDate < :endDate', { endDate })

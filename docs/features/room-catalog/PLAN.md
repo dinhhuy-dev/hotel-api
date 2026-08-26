@@ -2,7 +2,9 @@
 
 ## Status
 
-Implementation and review are complete. Milestones 1 through 7 are approved under the controller and service unit-test scope confirmed on 2026-08-21.
+Milestones 1 through 7 are complete and approved under the controller and service unit-test scope confirmed on 2026-08-21.
+
+Milestone 8 is an explicit E2E scope extension requested and approved on 2026-08-24. Its implementation and focused live verification are complete.
 
 This plan is the approved source of truth for the first `room-catalog` implementation. Work must proceed one milestone at a time, with a review checkpoint after each milestone.
 
@@ -372,9 +374,11 @@ Add a shared `ApiPaginatedSuccessResponse(ItemDto)` decorator because the curren
 
 - Service unit tests are required and cover business rules, lifecycle checks, state transitions, idempotent operations, response mapping, and error mapping.
 - Controller unit tests are required and cover delegation, RBAC metadata, public-route metadata, and Swagger response metadata.
-- Only Room Catalog controller and service unit tests are required for feature completion.
-- Repository adapter, module wiring, DTO, shared decorator, repository integration, E2E, and migration verification tests are outside the required completion scope. Existing tests may remain in the repository but do not need to run for future Room Catalog checkpoints unless the user changes the scope.
-- Any future database-specific verification must use PostgreSQL. SQLite is not an accepted substitute for PostgreSQL enums, expression indexes, foreign keys, or row locking.
+- Only Room Catalog controller and service unit tests were required for the original feature completion scope.
+- Repository adapter, module wiring, DTO, shared decorator, repository integration, E2E, and migration verification tests remained outside that original completion scope.
+- Milestone 8 adds one explicit Room Catalog E2E suite using `AppModule`, real JWT authentication and RBAC guards, the runtime validation, filter, and response envelope, and PostgreSQL persistence.
+- The E2E runner accepts only a dedicated database whose name ends with `_test` or `-test`, applies pending migrations, runs serially, and removes only fixture rows owned by the suite.
+- Database-specific verification uses PostgreSQL. SQLite is not an accepted substitute for PostgreSQL enums, expression indexes, foreign keys, or row locking.
 - Relevant format and lint checks pass.
 - The repository-local Nest build passes.
 
@@ -427,6 +431,16 @@ Add a shared `ApiPaginatedSuccessResponse(ItemDto)` decorator because the curren
 - Record exact verification evidence.
 - Mark the feature complete under the approved scope.
 
+### Milestone 8 - Room Catalog E2E Scope Extension
+
+- Add a guarded, serial E2E test setup for a dedicated PostgreSQL database.
+- Exercise public Room Type responses and validation through the runtime HTTP envelope.
+- Exercise management and staff authentication and RBAC with real JWT guards.
+- Exercise Facility, Room Type, facility assignment, Room, visibility, and lifecycle workflows through HTTP with real repositories.
+- Override only unrelated outbound SMTP and test logging dependencies so the Room Catalog suite opens no external email connection and exits cleanly.
+- Run focused E2E, lint, format, build, diff, and language checks.
+- Record exact verification evidence and stop for review.
+
 ## Definition of Done
 
 The feature is complete only when:
@@ -438,3 +452,5 @@ The feature is complete only when:
 - The repository-local Nest build passes.
 - Swagger matches the runtime response contract.
 - `PROGRESS.md` records the final status and verification evidence.
+
+The Milestone 8 extension was completed and approved on 2026-08-24 after its checklist and focused verification passed.

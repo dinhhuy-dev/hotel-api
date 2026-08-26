@@ -1,14 +1,18 @@
 # Project Progress
 
-Last updated: 2026-08-23
+Last updated: 2026-08-24
 
 ## Active Feature
 
-- Feature: None.
-- Status: Pricing was completed and approved on 2026-08-23. No new feature checkpoint has started.
+- Feature: `booking`.
+- Status: Complete and approved under the controller and service unit-test scope.
+- Active plan: `docs/features/booking/PLAN.md`.
+- Active tasks: `docs/features/booking/TASK.md`.
 
 ## Completed
 
+- `booking`: Complete and approved on 2026-08-24 under the controller and service unit-test scope. See `docs/features/booking/PLAN.md` and `docs/features/booking/TASK.md`.
+- Booking verification: All 4 controller suites passed with 23 tests and all 6 service suites passed with 106 tests, for 10 suites and 129 tests total. The focused Pricing quote and Room Catalog module contract suites passed with 2 suites and 15 tests. Relevant ESLint, Prettier, Nest build, `git diff --check`, no-em-dash, Swagger, module-boundary, dependency, transaction, lock-order, mock-event, response-safety, README, and architecture reviews passed. A live PostgreSQL migration was not run and remains deferred under the approved scope.
 - `pricing`: Complete and approved under the controller and service unit-test scope. See `docs/features/pricing/PLAN.md` and `docs/features/pricing/TASK.md`.
 - Pricing verification: All 3 Pricing controller/service suites passed with 40 tests, and the focused Room Catalog public-contract service suite passed with 24 tests. Relevant ESLint, Prettier, Nest build, and `git diff --check` passed. Swagger, module boundaries, public exports, README, and architecture documentation were reviewed. The user confirmed that the Pricing migration completed without PostgreSQL errors before the final review; the agent did not independently observe that execution.
 - `development-seed-data`: Complete and approved on 2026-08-23. See `docs/features/development-seed-data/PLAN.md` and `docs/features/development-seed-data/TASK.md`.
@@ -20,6 +24,16 @@ Last updated: 2026-08-23
 
 - Use repository-local Node.js commands because the global npm launcher is unreliable.
 
+## Latest Verification
+
+- Booking Milestone 7: All 4 Booking controller suites passed with 23 tests and all 6 Booking service suites passed with 106 tests, for 10 suites and 129 tests total. The focused Pricing quote and Room Catalog module contract suites passed with 2 suites and 15 tests. Relevant ESLint, Prettier, Nest build, `git diff --check`, no-em-dash, Swagger, module-boundary, dependency, transaction, lock-order, mock-event, response-safety, README, and architecture reviews passed on 2026-08-24. Transaction review found and verified the post-lock idempotency recheck for concurrent same-key creation. Documentation review aligned current and future module claims. A live PostgreSQL migration was not run.
+- Booking Milestone 6: The Receptionist controller, Check-In service, and Check-Out service suites passed with 3 suites and 36 tests; all 10 current Booking suites passed with 128 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, validation responsibility review, lifecycle and payment review, lock-order and transaction review, assignment and Room Catalog review, response exposure review, event publication review, RBAC, route, and Swagger review passed on 2026-08-24. Independent review found and verified the Swagger description fix for check-out assignment conflicts.
+- Booking Milestone 5: The four milestone controller and service suites passed with 68 tests; all 8 current Booking suites passed with 98 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, ownership and lifecycle review, event idempotency review, transaction and lock review, response exposure review, RBAC, route, and Swagger review passed on 2026-08-24. Independent review found and verified the fix that keeps repeated cancellation after no-show refund-free.
+- Booking Milestone 4: The three milestone controller suites and two service suites passed with 5 suites and 43 tests; all 7 current Booking suites passed with 58 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, transaction and lock review, idempotency review, effective-status pagination review, PostgreSQL integer-bound review, response exposure review, RBAC, route, and Swagger review passed on 2026-08-24.
+- Booking Milestone 3: The Availability controller and service suites passed with 2 suites and 15 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, algorithm review, route metadata review, and Swagger review passed on 2026-08-24.
+- Booking Milestone 2: The focused Pricing quote and Room Catalog module suites passed with 2 suites and 15 tests. Focused ESLint, Prettier, Nest build, `git diff --check`, entity metadata inspection, and Booking query construction passed on 2026-08-23. A live PostgreSQL migration was not run.
+- Booking Milestone 1: Repository-local Prettier, `git diff --check`, documentation scope checks, and the no-em-dash language check passed on 2026-08-23.
+
 ## Next Step
 
-- Start a separate Booking planning checkpoint when requested. Booking implementation has not started.
+- No Booking implementation milestone remains. Expand the approved scope before starting deferred integration or infrastructure work.

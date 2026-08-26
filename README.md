@@ -2,18 +2,20 @@
 
 ## Overview
 
-Hotel API is a backend system for managing one hotel. It provides APIs for room inventory, pricing, customers, reservations, stays, payments, and hotel operations. Customers can search for available rooms, view prices, make online reservations, and manage their reservations.
+Hotel API is a backend system for managing one hotel. The current implementation provides authentication and RBAC, Room Catalog, Pricing, and the Booking MVP. Customers can search priced availability, create Reservations, view owned Reservations, request mock payment, and cancel Reservations.
 
 The system supports one hotel only. It does not support branches or multiple hotels.
 
+Customer profiles, real Payment processing, Housekeeping tasks, and Maintenance workflows remain future modules. Booking uses the authenticated account ID as a mock Customer ID, an always-successful local payment and refund handler, and a no-op post-check-out Housekeeping handler.
+
 ## User Roles
 
-- **Administrator:** Creates accounts, changes account roles, and manages system settings.
-- **Hotel Manager:** Manages hotel operations, room prices, room status, and staff tasks.
-- **Receptionist:** Manages customers, reservations, check-in, check-out, and payments.
-- **Housekeeping Staff:** Views and updates assigned room-cleaning tasks.
-- **Maintenance Staff:** Views and handles room maintenance requests.
-- **Customer:** Searches for rooms, views prices, makes reservations, and manages personal information and reservations.
+- **Administrator:** Creates accounts, changes account roles, and manages Room Catalog and Pricing data.
+- **Hotel Manager:** Manages Room Catalog and Pricing data and reads Reservations.
+- **Receptionist:** Creates Reservations, requests mock payment, cancels or marks no-show, and performs check-in and check-out.
+- **Housekeeping Staff:** Has an authenticated role, while Housekeeping task APIs remain future scope.
+- **Maintenance Staff:** Has an authenticated role, while Maintenance workflow APIs remain future scope.
+- **Customer:** Searches priced availability and creates, reads, pays, or cancels owned Reservations.
 
 ## Functional Scope
 
@@ -27,31 +29,31 @@ Administrators and hotel managers can manage room types, capacity, facilities, r
 
 ### Customers
 
-The system stores customer contact details, identification details, and reservation history. Receptionists can manage customer records, and customers can update their basic information.
+A real Customer profile module remains future scope. Booking stores immutable contact name and phone snapshots on each Reservation and uses account IDs or Receptionist-supplied UUIDs as mock Customer identifiers.
 
 ### Room Availability
 
-The system checks room availability for a selected date range based on reservations, check-in, check-out, housekeeping, maintenance, and room status.
+Booking combines sellable Room Catalog capacity, overlapping Reservation commitments, and complete Pricing coverage for the selected stay. Public search returns bounded, sorted, priced combinations of Room Types.
 
 ### Room Pricing
 
-Administrators and hotel managers can manage future date-ranged nightly prices for Room Types and read pricing history. Pricing also exposes an internal bulk stay-quote contract for other modules. Customer-facing price search remains part of the future Booking implementation.
+Administrators and hotel managers can manage future date-ranged nightly prices for Room Types and read pricing history. Pricing exposes an internal bulk stay-quote contract that Booking uses for public availability and final Reservation price checks.
 
 ### Reservations
 
-Customers can search for available rooms and make online reservations. Receptionists can create, confirm, update, and cancel reservations. The system checks availability before accepting a reservation.
+Customers and Receptionists can create immutable multi-room Reservations. Customers can read and cancel only their own Reservations. Receptionists and Hotel Managers can read Reservations, while Receptionists can request mock payment, cancel, or mark no-show. Mock payment success confirms an unexpired pending Reservation. Changes require cancellation and recreation.
 
 ### Check-in and Check-out
 
-Receptionists can confirm guest arrivals, assign rooms, record check-in times, complete check-out, and update room and reservation status.
+Receptionists can assign exact `READY` physical Rooms and check in a paid confirmed Reservation during its stay window. Check-out releases assignments, marks the Rooms `DIRTY`, records one check-out timestamp, and publishes a local no-op Housekeeping event after commit.
 
 ### Payments
 
-The system records deposits, payments, refunds, and payment status.
+Booking stores one full mock charge and one full mock refund state per Reservation. Local in-process handlers always succeed. Deposits, payment history, gateway callbacks, and a real Payment module remain future scope.
 
 ### Housekeeping and Maintenance
 
-Hotel managers can create and assign cleaning and maintenance tasks. Housekeeping and maintenance staff can update their assigned tasks. Room status reflects active cleaning and maintenance work.
+Housekeeping and Maintenance modules are not implemented. Booking only marks checked-out Rooms `DIRTY` and sends a local event to a no-op Housekeeping handler.
 
 ## Architecture
 
@@ -128,9 +130,16 @@ The commands refuse to run when `NODE_ENV=production`. Repeated runs skip compat
 # Unit tests
 npm run test
 
-# End-to-end tests
-npm run test:e2e
-
 # Test coverage
 npm run test:cov
+```
+
+E2E tests require an existing dedicated PostgreSQL database whose name ends with `_test` or
+`-test`. The test runner refuses to use any other database name. It applies pending migrations and
+owns only the fixture rows that it creates.
+
+```powershell
+$env:DB_DATABASE = 'hotel_api_test'
+npm run test:e2e
+Remove-Item Env:\DB_DATABASE
 ```

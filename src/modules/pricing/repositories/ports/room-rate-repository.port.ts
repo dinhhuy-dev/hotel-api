@@ -1,4 +1,5 @@
 import { RoomRate } from '../../entities/room-rate.entity';
+import type { EntityManager } from 'typeorm';
 
 export interface RoomRateListOptions {
   readonly page: number;
@@ -21,6 +22,7 @@ export interface RoomRateRepositoryPort {
     roomTypeIds: readonly string[],
     startDate: string,
     endDate: string,
+    manager?: EntityManager,
   ): Promise<RoomRate[]>;
   hasOverlap(
     roomTypeId: string,

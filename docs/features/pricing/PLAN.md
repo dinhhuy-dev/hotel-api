@@ -2,7 +2,7 @@
 
 ## Status
 
-All milestones are approved. Pricing is complete under the approved controller and service unit-test scope.
+Milestones 1 through 6 are complete and approved. Pricing includes the PostgreSQL E2E scope extension approved on 2026-08-24.
 
 This plan defines Pricing independently from the future Booking implementation. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 
@@ -309,7 +309,7 @@ List routes use `ApiPaginatedSuccessResponse`. Object routes use `ApiSuccessResp
 
 ## Testing Strategy
 
-The required automated scope is controller and service unit tests only, matching the current user-approved feature-testing boundary.
+The original required automated scope is controller and service unit tests only, matching the feature completion boundary approved for Milestones 1 through 5.
 
 - `RoomRateService` tests cover active Room Type validation, future-only mutations, overlap pre-check results, multi-range date filtering, and response mapping.
 - `PricingQuoteService` tests cover single and multiple applied rate ranges, complete coverage, clipped first and last applied boundaries, gaps, bulk ordering, invalid input, and integer totals.
@@ -318,6 +318,8 @@ The required automated scope is controller and service unit tests only, matching
 - Repository adapter, DTO, module-wiring, migration, PostgreSQL integration, and E2E tests are outside the required completion scope unless the user expands it.
 - Any optional database-specific verification must use PostgreSQL, especially for `btree_gist`, exclusion constraints, and `date` behavior.
 - Relevant ESLint, Prettier, Nest build, and `git diff --check` verification must pass.
+
+On 2026-08-24, the user explicitly expanded the Pricing scope with one focused PostgreSQL E2E checkpoint. The extension uses `AppModule`, pending migrations, real repositories, JWT authentication and RBAC, runtime validation and response envelopes, all five management routes, the internal bulk quote contract, and database exclusion enforcement. It owns only run-specific fixture rows and must use a dedicated database whose name ends with `_test` or `-test`.
 
 No future implementation checkpoint may claim that the exclusion constraint or migration works in PostgreSQL unless it is actually executed against PostgreSQL.
 
@@ -366,6 +368,18 @@ No future implementation checkpoint may claim that the exclusion constraint or m
 - Review Swagger metadata, module boundaries, and public exports.
 - Record exact verification evidence in `TASK.md` and `PROGRESS.md`.
 - Mark Pricing complete under the approved scope and stop for review.
+
+### Milestone 6 - PostgreSQL E2E Scope Extension
+
+- Add a focused Pricing E2E suite through `AppModule` with pending migrations and real PostgreSQL repositories.
+- Cover authentication, Administrator and Hotel Manager RBAC, runtime validation, and response envelopes.
+- Exercise create, list, detail, update, and delete routes with stable success and failure contracts.
+- Verify multi-range overlap filtering, pagination, future-only mutations, active Room Type validation, and persisted state.
+- Exercise the internal bulk quote contract with complete and unquoted Room Types through real rate queries.
+- Verify the PostgreSQL non-overlap exclusion constraint on the migrated schema.
+- Run the suite against a dedicated test database, remove the database after the run, and confirm cleanup.
+- Run focused lint, format, Nest build, diff, and language checks.
+- Record exact verification evidence and stop for review.
 
 ## Definition of Done
 
