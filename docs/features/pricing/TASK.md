@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/pricing/PLAN.md`
 
-Status: All milestones are complete and approved under the controller and service unit-test scope.
+Status: Milestones 1 through 6 are complete and approved.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -115,6 +115,34 @@ Status: All milestones are complete and approved under the controller and servic
 - Module review confirmed Pricing exports only `PRICING_QUOTE_SERVICE`, its services depend on Room Catalog through the public contract, and it has no Booking dependency. The `RoomRate` entity has the approved Room Type persistence relationship backed by the restrictive foreign key in the migration.
 - The user confirmed that the Pricing migration completed without errors against PostgreSQL before the Milestone 5 correction. The agent did not independently observe that execution. The added idempotent `CREATE EXTENSION IF NOT EXISTS btree_gist` statement protects fresh databases and was not part of the already-applied migration run.
 - `README.md` and `docs/architecture.md` were reviewed. The README Pricing scope and Pricing plan structure/error list were updated for implementation accuracy.
+
+## Milestone 6 - PostgreSQL E2E Scope Extension
+
+- [x] Record the explicit Pricing PostgreSQL E2E scope expansion.
+- [x] Add `test/pricing.e2e-spec.ts` through `AppModule` with pending migrations and real repositories.
+- [x] Cover JWT authentication, Administrator and Hotel Manager RBAC, runtime validation, and response envelopes.
+- [x] Exercise all five management Room Rate routes.
+- [x] Verify active, inactive, and missing Room Type behavior plus overlap and future-only lifecycle rules.
+- [x] Verify multi-range overlap filtering returns all complete stored ranges with sorting and pagination.
+- [x] Exercise the internal bulk quote contract with three applied ranges and an unquoted Room Type.
+- [x] Verify persisted create, update, and delete state through the real Room Rate repository.
+- [x] Verify the migrated PostgreSQL exclusion constraint rejects overlapping stored rates.
+- [x] Keep fixture cleanup limited to run-specific Room Types and Room Rates.
+- [x] Run the focused E2E suite on a dedicated test database and confirm database removal.
+- [x] Run focused ESLint and Prettier checks.
+- [x] Run the repository-local Nest build.
+- [x] Run staged and unstaged `git diff --check` plus a focused no-em-dash scan.
+- [x] Record exact verification evidence in `PROGRESS.md`.
+- [x] Review and approve Milestone 6.
+
+### Verification Evidence
+
+- The user approved Pricing Milestone 6 on 2026-08-24.
+- On 2026-08-24, the focused Pricing PostgreSQL E2E suite passed with 1 suite and 5 tests on the disposable `hotel_api_pricing_01a033d6_test` database.
+- The suite exercised all five Pricing management routes through `AppModule` with pending migrations, real repositories, JWT authentication and RBAC, runtime validation and response envelopes, active Room Type validation, overlap handling, multi-range filtering, pagination, future-only update and delete rules, stable error codes, and persisted state checks.
+- The internal bulk quote contract returned all three applied Room Rates and the unquoted Room Type through a real bulk repository query. A direct overlapping write was rejected by the migrated `ex_room_rates_no_overlap` PostgreSQL constraint.
+- Suite-owned fixture rows were cleaned, the disposable database was removed, and a final PostgreSQL query confirmed that no database with that exact name remained.
+- Focused E2E ESLint and Prettier, the repository-local Nest build, staged and unstaged `git diff --check`, and the focused no-em-dash scan passed.
 
 ## Deferred Booking Decisions
 

@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/booking/PLAN.md`
 
-Status: All seven milestones are approved. Booking is complete under the approved controller and service unit-test scope.
+Status: Milestones 1 through 8 are complete and approved. Milestone 8 added the explicit PostgreSQL E2E scope extension on 2026-08-24.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -175,6 +175,29 @@ Status: All seven milestones are approved. Booking is complete under the approve
 - Documentation review aligned README and architecture claims with the implemented Booking MVP and clearly marked Customer, real Payment, Housekeeping, and Maintenance modules as future scope.
 - A live PostgreSQL migration was not run. Migration, repository, PostgreSQL integration, and E2E tests remain deferred under the approved scope.
 
+## Milestone 8 - Booking E2E Scope Extension
+
+- [x] Expand the previously deferred Booking E2E scope by explicit user request.
+- [x] Reuse the guarded, serial PostgreSQL E2E setup approved for Room Catalog.
+- [x] Use `AppModule`, real PostgreSQL repositories and migrations, real JWT authentication and RBAC, runtime validation, and response envelopes.
+- [x] Create isolated Room Catalog and Pricing fixtures while exercising Booking behavior through HTTP.
+- [x] Cover public availability, all Customer routes, both staff query routes, and all Receptionist command routes.
+- [x] Cover idempotency replay and reuse rejection, ownership hiding, lazy expiration, no-show, mock payment and refund events, check-in, check-out, Room release, and Housekeeping Task creation.
+- [x] Remove only fixture rows owned by the suite.
+- [x] Override only unrelated outbound SMTP and test logging dependencies.
+- [x] Run the focused Booking E2E suite on a disposable PostgreSQL test database.
+- [x] Run focused lint, format, build, diff, and language checks.
+- [x] Update this plan, this checklist, and `PROGRESS.md` with the E2E scope and evidence.
+- [x] Review and approve Milestone 8.
+
+### Verification Evidence
+
+- On 2026-08-24, `test/booking.e2e-spec.ts` passed with 1 suite and 6 tests against the disposable `hotel_api_booking_2d270d44_test` PostgreSQL database.
+- The suite exercised all 14 Booking routes through the runtime HTTP stack with real module wiring, repositories, migrations, JWT authentication, RBAC, Room Catalog and Pricing dependencies, asynchronous mock Payment events, and Housekeeping check-out integration.
+- The disposable database was removed after the run, and a final PostgreSQL query confirmed that no matching Booking E2E database remained.
+- Focused ESLint and Prettier checks passed for the Booking E2E suite.
+- The repository-local Nest build, staged and unstaged `git diff --check`, and the focused no-em-dash scan passed.
+
 ## Deferred Work
 
 The following work remains outside the approved Booking MVP:
@@ -183,4 +206,4 @@ The following work remains outside the approved Booking MVP:
 - Durable events, queues, outbox delivery, retries, and scheduler infrastructure.
 - Reservation edits, amendments, partial operations, and multiple payments.
 - Operational-capacity conflict detection and retirement guards.
-- Repository, migration, DTO, module-wiring, PostgreSQL integration, and E2E tests.
+- Repository, migration, DTO, module-wiring, and standalone PostgreSQL integration tests.

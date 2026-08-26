@@ -2,7 +2,7 @@
 
 Active plan: `docs/features/room-catalog/PLAN.md`
 
-Status: Complete under the controller and service unit-test scope approved on 2026-08-21.
+Status: Milestones 1 through 8 are complete and approved. Milestone 8 added the explicit PostgreSQL E2E scope extension on 2026-08-24.
 
 ## Milestone 1 - Planning and Tracking
 
@@ -89,6 +89,23 @@ Status: Complete under the controller and service unit-test scope approved on 20
 - [x] Review `docs/architecture.md`; no approved architectural convention changed.
 - [x] Record exact verification evidence in `PROGRESS.md`.
 - [x] Mark the feature complete after every required task and verification step passes.
+
+## Milestone 8 - Room Catalog E2E Scope Extension
+
+- [x] Expand the previously deferred E2E scope by explicit user request.
+- [x] Add a safety setup that accepts only a dedicated PostgreSQL database ending with `_test` or `-test`.
+- [x] Configure E2E execution to run serially.
+- [x] Add public Room Type response-envelope and request-validation coverage.
+- [x] Add management and staff JWT authentication and RBAC coverage, including all five staff roles and Customer rejection.
+- [x] Add Facility management validation, duplicate, query, update, deactivate, and restore coverage.
+- [x] Add Room Type management query, update, facility assignment, in-use, deactivate, public visibility, and restore coverage.
+- [x] Add Room management create, query, update, transition, staff visibility, retire, and restore coverage.
+- [x] Use real `AppModule` HTTP wiring, real PostgreSQL repositories, and pending migrations while replacing only unrelated SMTP and test logger dependencies.
+- [x] Verify that the suite exits cleanly and removes its owned fixture data.
+- [x] Run the focused Room Catalog E2E suite on a temporary PostgreSQL test database: 1 suite and 5 tests passed, and the database was removed.
+- [x] Run focused ESLint, Prettier, the repository-local Nest build, `git diff --check`, and the no-em-dash scan.
+- [x] Update `README.md`, this plan, this checklist, and `PROGRESS.md` with the E2E requirements and evidence.
+- [x] Review and approve Milestone 8.
 
 ## Future Work Outside the Completed Scope
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-All seven milestones are approved. Booking is complete under the approved controller and service unit-test scope.
+Milestones 1 through 8 are complete and approved. Milestone 8 is the explicit E2E scope extension approved on 2026-08-24.
 
 This plan is the single source of truth for the approved Booking MVP. Work proceeds one milestone at a time, with a review checkpoint after each milestone.
 
@@ -19,7 +19,7 @@ Booking uses the completed Room Catalog and Pricing modules through intentional 
 - Do not add a generic transaction abstraction, shared transaction context, scheduler, outbox, retry framework, or generic event framework.
 - Do not support Reservation edits. A changed stay must be cancelled and recreated.
 - Do not implement post-booking operational-capacity conflict detection or planned-retirement guards.
-- Keep automated coverage to controller and service unit tests.
+- Keep the original completion scope to controller and service unit tests. Milestone 8 is the explicit Booking E2E extension.
 - Keep one coherent implementation checkpoint active at a time.
 
 ## Scope
@@ -435,7 +435,6 @@ Booking uses a local in-process event bus with these events:
 - `PaymentSucceeded`
 - `RefundRequested`
 - `RefundSucceeded`
-- `RoomsCheckedOut`
 
 Payment and refund events contain the Reservation ID, request ID, amount, and a reference when a mock operation has completed. The request ID is also the event idempotency key. Events are not stored.
 
@@ -497,9 +496,7 @@ Booking does not attempt to prevent or report capacity loss between Reservation 
 
 Check-out is all-or-nothing and applies only to `CHECKED_IN` Reservations. Early check-out is allowed and does not change price or create a refund.
 
-Inside one transaction, Booking locks the Reservation and active assignments, locks assigned Rooms, marks every assigned Room `DIRTY` through Room Catalog, sets assignment `releasedAt`, and changes the Reservation to `CHECKED_OUT`.
-
-After commit, Booking publishes `RoomsCheckedOut` with the Reservation ID, Room IDs, and check-out timestamp. The mock Housekeeping handler receives the event and performs no work.
+Inside one transaction, Booking locks the Reservation and active assignments, locks assigned Rooms, marks every assigned Room `DIRTY` through Room Catalog, creates or reuses one active Housekeeping Task per released Room through the Housekeeping public contract, sets assignment `releasedAt`, and changes the Reservation to `CHECKED_OUT`.
 
 ## Concurrency and Transaction Rules
 
@@ -667,7 +664,7 @@ Every controller documents operation summaries, request DTOs, response DTOs, the
 
 ## Testing Strategy
 
-The required automated scope is controller and service unit tests only.
+The original required automated scope was controller and service unit tests only.
 
 Required controller suites:
 
@@ -689,7 +686,11 @@ Controller tests cover delegation, route metadata, public or RBAC metadata, Swag
 
 Service tests mock repositories, external contracts, the clock, event publisher, and transaction manager. They cover successful flows, validation, ownership, lifecycle conflicts, expiration, idempotency, event idempotency, capacity conflicts, Pricing gaps, lock ordering, and race outcomes visible at the service boundary.
 
-Repository adapter, migration, DTO, module-wiring, event-bus, mock-handler, PostgreSQL integration, and E2E tests are outside the required scope.
+Repository adapter, migration, DTO, module-wiring, event-bus, mock-handler, and standalone PostgreSQL integration tests remain outside the required scope.
+
+Milestone 8 adds one Booking E2E suite using `AppModule`, real PostgreSQL repositories and migrations, real JWT authentication and RBAC, runtime validation and response handling, the real Room Catalog and Pricing contracts, mock Payment events, and the real Housekeeping check-out integration.
+
+The shared E2E runner accepts only a dedicated database whose name ends with `_test` or `-test`, applies pending migrations, runs serially, and removes only fixture rows owned by each suite.
 
 Relevant ESLint, Prettier, Nest build, and `git diff --check` checks must pass for implementation checkpoints.
 
@@ -763,6 +764,17 @@ Relevant ESLint, Prettier, Nest build, and `git diff --check` checks must pass f
 - Record exact evidence in `TASK.md` and `PROGRESS.md`.
 - Mark Booking complete under the approved scope and stop for review.
 
+### Milestone 8 - Booking E2E Scope Extension
+
+- Reuse the guarded, serial PostgreSQL E2E setup approved for Room Catalog.
+- Exercise public availability with real Room Catalog capacity, Facilities, and Pricing data.
+- Exercise authentication, RBAC, runtime validation, idempotency, ownership, Customer commands, staff queries, and Receptionist commands through HTTP.
+- Exercise asynchronous mock payment and refund handling, lazy expiration, no-show, check-in, check-out, Room release, and Housekeeping Task creation.
+- Override only unrelated outbound SMTP and test logging dependencies.
+- Run the focused Booking E2E suite on a disposable PostgreSQL test database.
+- Run focused lint, format, build, diff, and language checks.
+- Record exact verification evidence and stop for review.
+
 ## Definition of Done
 
 Booking is complete only when:
@@ -773,8 +785,11 @@ Booking is complete only when:
 - Immutable Reservations enforce the approved lifecycle and ownership rules.
 - Mock payment and refund events behave idempotently under the approved in-process limitations.
 - Check-in assigns only locked `READY` Rooms of the required Room Types.
-- Check-out releases assignments and marks assigned Rooms `DIRTY` atomically.
+- Check-out releases assignments, marks assigned Rooms `DIRTY`, and creates or reuses Housekeeping Tasks atomically.
 - Required controller and service unit tests pass.
+- The Milestone 8 Booking E2E suite passes when that explicit extension is under review.
 - Relevant lint, format, build, and diff checks pass.
 - Swagger and project documentation match the implemented behavior.
 - `PROGRESS.md` records the final status and verification evidence.
+
+The Milestone 8 extension was completed and approved on 2026-08-24 after its checklist and focused live verification passed.

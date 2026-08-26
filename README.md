@@ -130,9 +130,16 @@ The commands refuse to run when `NODE_ENV=production`. Repeated runs skip compat
 # Unit tests
 npm run test
 
-# End-to-end tests
-npm run test:e2e
-
 # Test coverage
 npm run test:cov
+```
+
+E2E tests require an existing dedicated PostgreSQL database whose name ends with `_test` or
+`-test`. The test runner refuses to use any other database name. It applies pending migrations and
+owns only the fixture rows that it creates.
+
+```powershell
+$env:DB_DATABASE = 'hotel_api_test'
+npm run test:e2e
+Remove-Item Env:\DB_DATABASE
 ```
